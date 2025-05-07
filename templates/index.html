@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FITNESS STORE</title>
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    
+    <!-- Carregamento de estilos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FITNESS STORE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">TODOS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?category=camisetas">CAMISETAS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?category=calcas">CALÇAS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?category=acessorios">ACESSÓRIOS</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/login">ADMIN</a>
+                    <a class="nav-link" href="/cart">
+                        CARRINHO
+                        {% if cart_count > 0 %}
+                        <span class="badge bg-danger">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <h1 class="hero-title">ELEVE SEU TREINO</h1>
+                <p class="hero-subtitle">Roupas de alta performance para atletas de verdade</p>
+                <a href="#featured" class="btn hero-cta">VER COLECÃO</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section id="featured" class="featured-section">
+            <h2 class="section-title">DESTAQUES</h2>
+            <div class="row">
+                {% for product in featured_products %}
+                <div class="col-md-4">
+                    <div class="featured-card">
+                        <span class="featured-badge">Novo</span>
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" loading="lazy" width="300" height="300">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="price">R$ {{ "%.2f"|format(product.price) }}</p>
+                            <div class="d-grid gap-2">
+                                <a href="/product/{{ product.id }}" class="btn btn-primary">VER DETALHES</a>
+                                <a href="/add_to_cart/{{ product.id }}" class="btn btn-success">ADICIONAR</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <nav class="category-nav">
+            <div class="container">
+                <ul class="nav justify-content-center">
+                    <li class="nav-item">
+                        <a class="nav-link {% if not current_category %}active{% endif %}" href="/">TODOS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_category == 'camisetas' %}active{% endif %}" href="/?category=camisetas">CAMISETAS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_category == 'calcas' %}active{% endif %}" href="/?category=calcas">CALÇAS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_category == 'acessorios' %}active{% endif %}" href="/?category=acessorios">ACESSÓRIOS</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <section class="product-grid">
+            <h2 class="section-title">TODOS OS PRODUTOS</h2>
+            <div class="row">
+                {% for product in products %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" loading="lazy" width="300" height="300">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="price">R$ {{ "%.2f"|format(product.price) }}</p>
+                            <div class="d-grid gap-2">
+                                <a href="/product/{{ product.id }}" class="btn btn-primary">VER DETALHES</a>
+                                <a href="/add_to_cart/{{ product.id }}" class="btn btn-success">ADICIONAR</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Carregamento assíncrono do JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+</body>
+</html>

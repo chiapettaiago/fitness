@@ -1,0 +1,50 @@
+[
+    {
+        "id": 1,
+        "name": "Camiseta Fitness Pro",
+        "description": "Camiseta de alta performance para treinos intensos. Tecido respirável e secagem rápida.",
+        "price": 89.90,
+        "image": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "category": "camisetas"
+    },
+    {
+        "id": 2,
+        "name": "Calça Legging Premium",
+        "description": "Legging de compressão com tecnologia anti-odor. Ideal para yoga e pilates.",
+        "price": 129.90,
+        "image": "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "category": "calcas"
+    },
+    {
+        "id": 3,
+        "name": "Garrafa Térmica Sport",
+        "description": "Garrafa térmica de 750ml com tecnologia de isolamento térmico. Mantém bebidas geladas por até 24h.",
+        "price": 49.90,
+        "image": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "category": "acessorios"
+    },
+    {
+        "id": 4,
+        "name": "Camiseta Dry-Fit Elite",
+        "description": "Camiseta com tecnologia dry-fit para máxima absorção do suor. Perfeita para corrida e treinos.",
+        "price": 79.90,
+        "image": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "category": "camisetas"
+    },
+    {
+        "id": 5,
+        "name": "Short Fitness Pro",
+        "description": "Short com tecido leve e elástico. Bolsos laterais para armazenamento seguro.",
+        "price": 69.90,
+        "image": "https://images.unsplash.com/photo-1562183241-b937e95585b6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "category": "calcas"
+    },
+    {
+        "id": 6,
+        "name": "Corda de Pular Profissional",
+        "description": "Corda de pular com rolamentos de alta performance. Ideal para cardio e crossfit.",
+        "price": 39.90,
+        "image": "https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+        "category": "acessorios"
+    }
+] 
