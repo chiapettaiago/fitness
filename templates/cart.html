@@ -1,119 +1,71 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrinho - FITNESS STORE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">FITNESS STORE</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">TODOS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/?category=camisetas">CAMISETAS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/?category=calcas">CALÇAS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/?category=acessorios">ACESSÓRIOS</a>
-                    </li>
-                </ul>
-                <div class="navbar-nav">
-                    <a class="nav-link" href="/login">ADMIN</a>
-                    <a class="nav-link active" href="/cart">
-                        CARRINHO
-                        {% if cart_count > 0 %}
-                        <span class="badge bg-danger">{{ cart_count }}</span>
-                        {% endif %}
-                    </a>
+{% extends "base.html" %}
+
+{% block title %}Carrinho - FITNESS STORE{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-5">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <h1 class="section-title mb-4">SEU CARRINHO</h1>
-        
-        {% if cart_items %}
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>PRODUTO</th>
-                        <th class="text-center">QUANTIDADE</th>
-                        <th class="text-end">PREÇO UNITÁRIO</th>
-                        <th class="text-end">SUBTOTAL</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="{{ item.image }}" alt="{{ item.name }}" style="width: 80px; height: 80px; object-fit: cover;" class="me-3">
-                                <span class="fw-bold">{{ item.name }}</span>
-                            </div>
-                        </td>
-                        <td class="text-center">{{ item.quantity }}</td>
-                        <td class="text-end">R$ {{ "%.2f"|format(item.price) }}</td>
-                        <td class="text-end price">R$ {{ "%.2f"|format(item.subtotal) }}</td>
-                        <td class="text-end">
-                            <a href="/remove_from_cart/{{ item.id }}" class="btn btn-sm btn-outline-danger">
-                                REMOVER
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3" class="text-end">TOTAL:</th>
-                        <th class="text-end price">R$ {{ "%.2f"|format(total) }}</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        
-        <div class="d-flex justify-content-between mt-5">
-            <div>
-                <a href="/" class="btn btn-outline-primary">CONTINUAR COMPRANDO</a>
-                <a href="/clear_cart" class="btn btn-outline-danger ms-2">ESVAZIAR CARRINHO</a>
-            </div>
-            <button class="btn btn-success btn-lg">FINALIZAR COMPRA</button>
-        </div>
-        {% else %}
-        <div class="alert alert-info">
-            Seu carrinho está vazio!
-        </div>
-        <a href="/" class="btn btn-primary">VER PRODUTOS</a>
+            {% endfor %}
         {% endif %}
+    {% endwith %}
+
+    <h1 class="mb-4">CARRINHO</h1>
+
+    {% if cart_items %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>PRODUTO</th>
+                    <th>QUANTIDADE</th>
+                    <th>PREÇO UNITÁRIO</th>
+                    <th>SUBTOTAL</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            <span class="fw-bold">{{ item.name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>R$ {{ "%.2f"|format(item.price) }}</td>
+                    <td>R$ {{ "%.2f"|format(item.subtotal) }}</td>
+                    <td>
+                        <a href="/remove_from_cart/{{ item.id }}" class="btn btn-danger btn-sm">REMOVER</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end fw-bold">TOTAL:</td>
+                    <td class="fw-bold">R$ {{ "%.2f"|format(total) }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+    <div class="d-flex justify-content-between mt-4">
+        <a href="/" class="btn btn-outline-dark">CONTINUAR COMPRANDO</a>
+        <a href="/clear_cart" class="btn btn-danger">ESVAZIAR CARRINHO</a>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        SEU CARRINHO ESTÁ VAZIO!
+    </div>
+    <a href="/" class="btn btn-primary">CONTINUAR COMPRANDO</a>
+    {% endif %}
+</div>
+{% endblock %} 

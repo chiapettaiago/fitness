@@ -1,20 +1,93 @@
-<!doctype html>
-<html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>GymShop - Loja Fitness</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FITNESS STORE{% endblock %}</title>
+    <!-- Preload de recursos críticos -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    
+    <!-- Carregamento de estilos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">🏋️ GymShop</a>
-            <a class="btn btn-light" href="{{ url_for('cart') }}">🛒 Carrinho</a>
+    <!-- Barra de navegação superior (desktop) -->
+    <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block">
+        <div class="container">
+            <a class="navbar-brand" href="/">FITNESS STORE</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">TODOS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?category=camisetas">CAMISETAS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?category=calcas">CALÇAS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/?category=acessorios">ACESSÓRIOS</a>
+                    </li>
+                </ul>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/login">ADMIN</a>
+                    <a class="nav-link" href="/cart">
+                        CARRINHO
+                        {% if cart_count > 0 %}
+                        <span class="badge bg-danger">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
-    <div class="container mt-4">
+
+    <!-- Conteúdo principal -->
+    <div class="main-content">
         {% block content %}{% endblock %}
     </div>
+
+    <!-- Barra de navegação inferior (mobile) -->
+    <nav class="mobile-nav d-lg-none">
+        <div class="container">
+            <div class="mobile-nav-items">
+                <a href="/" class="mobile-nav-item {% if not current_category %}active{% endif %}">
+                    <i class="bi bi-house-door"></i>
+                    <span>Início</span>
+                </a>
+                <a href="/?category=camisetas" class="mobile-nav-item {% if current_category == 'camisetas' %}active{% endif %}">
+                    <i class="bi bi-person-workspace"></i>
+                    <span>Camisetas</span>
+                </a>
+                <a href="/?category=calcas" class="mobile-nav-item {% if current_category == 'calcas' %}active{% endif %}">
+                    <i class="bi bi-bag"></i>
+                    <span>Calças</span>
+                </a>
+                <a href="/?category=acessorios" class="mobile-nav-item {% if current_category == 'acessorios' %}active{% endif %}">
+                    <i class="bi bi-watch"></i>
+                    <span>Acessórios</span>
+                </a>
+                <a href="/cart" class="mobile-nav-item">
+                    <i class="bi bi-cart3"></i>
+                    <span>Carrinho</span>
+                    {% if cart_count > 0 %}
+                    <span class="mobile-badge">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Carregamento assíncrono do JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
