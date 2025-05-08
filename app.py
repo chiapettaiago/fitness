@@ -62,13 +62,15 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    cart_count = len(session.get('cart', []))
+    
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
         if not username or not password:
             flash('Por favor, preencha todos os campos!', 'danger')
-            return render_template('login.html')
+            return render_template('login.html', cart_count=cart_count)
         
         if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
             session.permanent = True
@@ -78,13 +80,13 @@ def login():
             return redirect(url_for('admin_dashboard'))
         else:
             flash('Usuário ou senha incorretos!', 'danger')
-            return render_template('login.html')
+            return render_template('login.html', cart_count=cart_count)
     
     # Se o usuário já estiver logado, redireciona para o dashboard
     if 'logged_in' in session:
         return redirect(url_for('admin_dashboard'))
         
-    return render_template('login.html')
+    return render_template('login.html', cart_count=cart_count)
 
 @app.route('/logout')
 def logout():
