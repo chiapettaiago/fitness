@@ -66,14 +66,24 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
+        if not username or not password:
+            flash('Por favor, preencha todos os campos!', 'danger')
+            return render_template('login.html')
+        
         if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
             session.permanent = True
             session['logged_in'] = True
+            session['username'] = username
             flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('admin_dashboard'))
         else:
             flash('Usuário ou senha incorretos!', 'danger')
+            return render_template('login.html')
     
+    # Se o usuário já estiver logado, redireciona para o dashboard
+    if 'logged_in' in session:
+        return redirect(url_for('admin_dashboard'))
+        
     return render_template('login.html')
 
 @app.route('/logout')
