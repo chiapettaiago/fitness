@@ -15,9 +15,10 @@
         {% endif %}
     {% endwith %}
 
-    <h1 class="mb-4">CARRINHO</h1>
+    <h1 class="section-title mb-4">CARRINHO</h1>
 
     {% if cart_items %}
+    <div class="admin-card">
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -34,7 +35,7 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="{{ item.image }}" alt="{{ item.name }}" class="me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="me-3 cart-item-img">
                             <span class="fw-bold">{{ item.name }}</span>
                         </div>
                     </td>
@@ -61,11 +62,14 @@
         <a href="/" class="btn btn-outline-dark">CONTINUAR COMPRANDO</a>
         <a href="/clear_cart" class="btn btn-danger">ESVAZIAR CARRINHO</a>
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        SEU CARRINHO ESTÁ VAZIO!
     </div>
-    <a href="/" class="btn btn-primary">CONTINUAR COMPRANDO</a>
+    {% else %}
+    <div class="admin-card">
+        <div class="alert alert-info">
+            SEU CARRINHO ESTÁ VAZIO!
+        </div>
+        <a href="/" class="btn btn-primary">CONTINUAR COMPRANDO</a>
+    </div>
     {% endif %}
 </div>
 {% endblock %} 

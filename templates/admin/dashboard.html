@@ -1,42 +1,16 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - FITNESS STORE</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">FITNESS STORE</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/">VER LOJA</a>
-                <a class="nav-link" href="/logout">SAIR</a>
-            </div>
-        </div>
-    </nav>
+{% extends "admin/base_admin.html" %}
 
-    <div class="container mt-5">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Dashboard - FITNESS STORE{% endblock %}
+
+{% block content %}
 
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="section-title mb-0">GERENCIAR PRODUTOS</h1>
+            <h1 class="admin-title mb-0">GERENCIAR PRODUTOS</h1>
             <a href="/admin/products/add" class="btn btn-success">ADICIONAR PRODUTO</a>
         </div>
 
-        <div class="table-responsive">
+        <div class="admin-card">
+            <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
@@ -64,9 +38,6 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+{% endblock %}

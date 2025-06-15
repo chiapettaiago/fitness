@@ -35,7 +35,7 @@
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="price">R$ {{ "%.2f"|format(product.price) }}</p>
                         <div class="d-grid gap-2">
-                            <a href="/product/{{ product.id }}" class="btn btn-primary">VER DETALHES</a>
+                            <a href="#" class="btn btn-primary btn-details" data-product-id="{{ product.id }}">VER DETALHES</a>
                             <a href="/add_to_cart/{{ product.id }}" class="btn btn-success">ADICIONAR</a>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="price">R$ {{ "%.2f"|format(product.price) }}</p>
                         <div class="d-grid gap-2">
-                            <a href="/product/{{ product.id }}" class="btn btn-primary">VER DETALHES</a>
+                            <a href="#" class="btn btn-primary btn-details" data-product-id="{{ product.id }}">VER DETALHES</a>
                             <a href="/add_to_cart/{{ product.id }}" class="btn btn-success">ADICIONAR</a>
                         </div>
                     </div>

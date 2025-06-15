@@ -215,5 +215,16 @@ def cart():
     cart_count = len(cart_ids)
     return render_template('cart.html', cart_items=cart_items, total=total, cart_count=cart_count)
 
+# API para obter detalhes do produto
+@app.route('/api/product/<int:product_id>')
+def api_product_details(product_id):
+    products = load_products()
+    product = next((p for p in products if p['id'] == product_id), None)
+    
+    if product:
+        return jsonify(product)
+    else:
+        return jsonify({"error": "Produto não encontrado"}), 404
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=11000, debug=False, threaded=True)

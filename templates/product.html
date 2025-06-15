@@ -7,15 +7,19 @@
     {% if product %}
     <div class="row">
         <div class="col-md-6">
-            <img src="{{ product.image }}" class="img-fluid rounded" alt="{{ product.name }}" loading="lazy">
+            <div class="product-detail-card">
+                <img src="{{ product.image }}" class="img-fluid product-detail-image" alt="{{ product.name }}" loading="lazy">
+            </div>
         </div>
         <div class="col-md-6">
-            <h1 class="mb-4">{{ product.name }}</h1>
+            <div class="product-detail-card">
+                <h1 class="product-detail-title">{{ product.name }}</h1>
             <p class="lead mb-4">{{ product.description }}</p>
             <p class="h3 mb-4">R$ {{ "%.2f"|format(product.price) }}</p>
             <div class="d-grid gap-2">
                 <a href="/add_to_cart/{{ product.id }}" class="btn btn-success btn-lg">ADICIONAR AO CARRINHO</a>
                 <a href="/" class="btn btn-outline-dark btn-lg">VOLTAR AOS PRODUTOS</a>
+            </div>
             </div>
         </div>
     </div>
