@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Executar Flask App",
+			"type": "shell",
+			"command": "cd /home/iagochiapetta/fitness && python app.py",
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": []
+		}
+	]
+}

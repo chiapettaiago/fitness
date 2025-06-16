@@ -126,83 +126,264 @@ window.addEventListener('resize', function() {
     }
 });
 
-// Efeito de vidro líquido nos elementos
-document.addEventListener('mousemove', function(e) {
-    // Lista de todos os tipos de elementos que devem ter o efeito 3D
-    const elements = document.querySelectorAll('.card, .featured-card, .login-card, .admin-card, .product-detail-card');
-    
-    elements.forEach(element => {
-        const rect = element.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const angleX = (centerY - y) / 20;
-            const angleY = (x - centerX) / 20;
-            
-            element.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) scale3d(1.02, 1.02, 1.02)`;
-            element.style.boxShadow = `
-                ${-angleY}px ${angleX}px 20px rgba(234, 76, 137, 0.3),
-                0 10px 20px rgba(156, 39, 176, 0.2)
-            `;
-        }
-    });
-    
-    // Efeito especial para botões
-    const buttons = document.querySelectorAll('.btn-primary, .btn-success');
-    buttons.forEach(button => {
-        const rect = button.getBoundingClientRect();
-        const distance = Math.sqrt(
-            Math.pow(e.clientX - (rect.left + rect.width / 2), 2) +
-            Math.pow(e.clientY - (rect.top + rect.height / 2), 2)
-        );
-        
-        const maxDistance = 300;
-        if (distance < maxDistance) {
-            const intensity = 1 - distance / maxDistance;
-            button.style.boxShadow = `0 0 ${20 * intensity}px ${10 * intensity}px rgba(234, 76, 137, 0.3)`;
-        } else {
-            button.style.boxShadow = '';
-        }
-    });
-    
-    // Efeito de reflexo dinâmico na página
-    const background = document.querySelector('.page-background');
-    if (background) {
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        
-        const moveX = (e.clientX / windowWidth) * 5 - 2.5;
-        const moveY = (e.clientY / windowHeight) * 5 - 2.5;
-        
-        background.style.backgroundPosition = `${50 + moveX}% ${50 + moveY}%`;
-    }
-});
-
-// Resetar transformação ao tirar o mouse
-document.addEventListener('mouseleave', function(e) {
-    // Resetar todos os elementos com efeito 3D
-    const elements = document.querySelectorAll('.card, .featured-card, .login-card, .admin-card, .product-detail-card');
-    elements.forEach(element => {
-        element.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-        element.style.boxShadow = 'var(--card-shadow)';
-    });
-    
-    // Resetar botões
-    const buttons = document.querySelectorAll('.btn-primary, .btn-success');
-    buttons.forEach(button => {
-        button.style.boxShadow = '';
-    });
-});
-
-// Adicionar efeito de ondulação líquida ao fundo
+// Efeito de vidro líquido nos elementos - versão super otimizada para desempenho
 document.addEventListener('DOMContentLoaded', function() {
+    // Verifica o nível de performance e ajusta os efeitos
+    const perfUtils = window.perfUtils;
+    const perfParams = perfUtils.performanceLevel.getParams();
+    
+    if (!perfParams[perfParams.level].animationsEnabled) {
+        // Se as animações estiverem desativadas, não adiciona efeitos pesados
+        console.log('Animações desativadas devido às preferências de usuário ou limitações do dispositivo');
+        return;
+    }
+    
+    // Seleciona os elementos que devem ter o efeito 3D
+    const allElements = document.querySelectorAll('.card, .featured-card, .login-card, .admin-card, .product-detail-card');
+    
+    // Registra os elementos no gerenciador de visibilidade
+    allElements.forEach(element => {
+        perfUtils.visibilityManager.observe(
+            element,
+            // Quando o elemento fica visível
+            (el) => {
+                // Adiciona classe para indicar que o elemento está ativo para animações
+                el.classList.add('anim-active');
+            },
+            // Quando o elemento não está mais visível
+            (el) => {
+                // Remove classe para desativar animações
+                el.classList.remove('anim-active');
+            }
+        );
+    });
+    
+    // Referências ao estado do mouse
+    let mouseX = 0, mouseY = 0;
+    let lastMouseX = 0, lastMouseY = 0;
+    
+    // Monitora a posição do mouse em todo o documento
+    document.addEventListener('mousemove', perfUtils.throttle(function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    }, perfParams[perfParams.level].throttleTime));
+    
+    // Registra o efeito de vidro líquido no otimizador de animações
+    perfUtils.animationOptimizer.add('glassEffect', function() {
+        // Verifica se a posição do mouse mudou significativamente
+        if (Math.abs(mouseX - lastMouseX) < 2 && Math.abs(mouseY - lastMouseY) < 2) {
+            return; // Pula o frame se o mouse não se moveu o suficiente
+        }
+        
+        // Atualiza as posições anteriores
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        
+        // Obtém apenas os elementos com a classe 'anim-active' (visíveis)
+        const activeElements = document.querySelectorAll('.card.anim-active, .featured-card.anim-active, .login-card.anim-active, .admin-card.anim-active, .product-detail-card.anim-active');
+        
+        // Aplica o efeito 3D apenas aos elementos ativos
+        activeElements.forEach(element => {
+            const rect = element.getBoundingClientRect();
+            
+            const x = mouseX - rect.left;
+            const y = mouseY - rect.top;
+            
+            if (x > -100 && x < rect.width + 100 && y > -100 && y < rect.height + 100) {
+                // Limita o ângulo para elementos próximos ao mouse
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                // Calcula o ângulo com base na distância do mouse ao centro
+                let angleX = (centerY - y) / 20;
+                let angleY = (x - centerX) / 20;
+                
+                // Limita o ângulo máximo
+                angleX = Math.min(Math.max(angleX, -5), 5);
+                angleY = Math.min(Math.max(angleY, -5), 5);
+                
+                // Aplica a transformação
+                element.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) scale3d(1.02, 1.02, 1.02)`;
+                element.style.boxShadow = `
+                    ${-angleY}px ${angleX}px 20px rgba(234, 76, 137, 0.3),
+                    0 10px 20px rgba(156, 39, 176, 0.2)
+                `;
+            }
+        });
+    });
+    
+    // Registra efeito para botões como animação de baixa prioridade
+    perfUtils.animationOptimizer.add('buttonEffect', function() {
+        // Só processa a cada segundo frame para economizar recursos
+        if (Date.now() % 2 === 0) return;
+        
+        // Obtém apenas botões visíveis
+        const buttons = document.querySelectorAll('.btn-primary.anim-active, .btn-success.anim-active');
+        
+        buttons.forEach(button => {
+            const rect = button.getBoundingClientRect();
+            const distance = Math.sqrt(
+                Math.pow(mouseX - (rect.left + rect.width / 2), 2) +
+                Math.pow(mouseY - (rect.top + rect.height / 2), 2)
+            );
+            
+            const maxDistance = 300;
+            if (distance < maxDistance) {
+                const intensity = 1 - distance / maxDistance;
+                button.style.boxShadow = `0 0 ${20 * intensity}px ${10 * intensity}px rgba(234, 76, 137, 0.3)`;
+            } else {
+                button.style.boxShadow = '';
+            }
+        });
+    }, null);
+    // Define como baixa prioridade
+    perfUtils.animationOptimizer.setPriority('buttonEffect', 'low');
+    
+    // Efeito de reflexo dinâmico na página - registrado separadamente com prioridade baixa
+    let lastBgUpdate = 0;
+    perfUtils.animationOptimizer.add('backgroundEffect', function() {
+        // Limita a taxa de atualização do fundo (a cada 100ms)
+        const now = Date.now();
+        if (now - lastBgUpdate < 100) return;
+        lastBgUpdate = now;
+        
+        const background = document.querySelector('.page-background');
+        if (background) {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            const moveX = (mouseX / windowWidth) * 5 - 2.5;
+            const moveY = (mouseY / windowHeight) * 5 - 2.5;
+            
+            background.style.backgroundPosition = `${50 + moveX}% ${50 + moveY}%`;
+        }
+    }, null);
+    // Define como baixa prioridade
+    perfUtils.animationOptimizer.setPriority('backgroundEffect', 'low');
+    
+    // Registra elementos de UI para efeitos de glassmorphism
+    document.querySelectorAll('.btn, .card, .navbar, .mobile-nav, .product-modal-content').forEach(el => {
+        perfUtils.visibilityManager.observe(el, 
+            // Quando visível
+            (element) => element.classList.add('anim-active'),
+            // Quando não visível
+            (element) => element.classList.remove('anim-active')
+        );
+    });
+});
+
+// Resetar transformação ao tirar o mouse - versão super otimizada para desempenho
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifica o nível de performance
+    const perfUtils = window.perfUtils;
+    const perfParams = perfUtils.performanceLevel.getParams();
+    
+    if (!perfParams[perfParams.level].animationsEnabled) return;
+    
+    // Registro de eventos de mouseleave para elementos animados
+    document.addEventListener('mouseleave', perfUtils.debounce(function() {
+        // Reseta todas as transformações quando o mouse sai do documento
+        resetAllTransforms();
+    }, 100));
+    
+    // Função para resetar todas as transformações
+    function resetAllTransforms() {
+        // Usa requestAnimationFrame para sincronizar com o refresh do navegador
+        requestAnimationFrame(() => {
+            // Reseta apenas elementos com classe anim-active (visíveis)
+            const elements = document.querySelectorAll('.card.anim-active, .featured-card.anim-active, .login-card.anim-active, .admin-card.anim-active, .product-detail-card.anim-active');
+            
+            elements.forEach(element => {
+                element.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                element.style.boxShadow = 'var(--card-shadow)';
+                
+                // Inicia uma transição suave para o estado normal
+                element.classList.add('reset-transition');
+                
+                // Remove a classe após a transição terminar
+                setTimeout(() => {
+                    element.classList.remove('reset-transition');
+                }, 300);
+            });
+            
+            // Resetar botões visíveis
+            const buttons = document.querySelectorAll('.btn-primary.anim-active, .btn-success.anim-active');
+            buttons.forEach(button => {
+                button.style.boxShadow = '';
+            });
+        });
+    }
+    
+    // Monitor de inatividade para pausar animações quando o usuário está inativo
+    let inactivityTimer;
+    
+    function setupInactivityMonitor() {
+        // Reseta o timer quando há interação do usuário
+        const resetInactivityTimer = () => {
+            clearTimeout(inactivityTimer);
+            
+            // Se as animações estavam pausadas, retoma
+            if (window.animationsPaused) {
+                window.animationsPaused = false;
+                perfUtils.animationOptimizer.resume('glassEffect');
+                perfUtils.animationOptimizer.resume('buttonEffect');
+                perfUtils.animationOptimizer.resume('backgroundEffect');
+            }
+            
+            // Define novo timer
+            inactivityTimer = setTimeout(() => {
+                // Pausa animações após 5 segundos de inatividade
+                window.animationsPaused = true;
+                perfUtils.animationOptimizer.pause('glassEffect');
+                perfUtils.animationOptimizer.pause('buttonEffect');
+                perfUtils.animationOptimizer.pause('backgroundEffect');
+                
+                // Reseta todas as transformações
+                resetAllTransforms();
+            }, 5000);
+        };
+        
+        // Monitora eventos de interação
+        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(eventType => {
+            document.addEventListener(eventType, perfUtils.throttle(resetInactivityTimer, 500));
+        });
+        
+        // Inicia o timer
+        resetInactivityTimer();
+    }
+    
+    // Configura o monitor de inatividade
+    setupInactivityMonitor();
+});
+
+// Adicionar efeito de ondulação líquida ao fundo - otimizado para desempenho
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifica o nível de desempenho antes de adicionar efeitos pesados
+    const perfUtils = window.perfUtils;
+    const perfParams = perfUtils.performanceLevel.getParams();
+    
+    // Somente adiciona bolhas se o dispositivo suportar efeitos de partículas
+    if (!perfParams[perfParams.level].particleEffects) {
+        console.log('Efeitos de partículas desativados para melhorar o desempenho');
+        return;
+    }
+    
+    // Número de bolhas baseado no desempenho do dispositivo
+    let bubbleCount = 6; // Padrão para dispositivos de nível médio
+    
+    if (perfParams.level === 'high') {
+        bubbleCount = 12; // Mais bolhas para dispositivos potentes
+    } else if (perfParams.level === 'low') {
+        bubbleCount = 3; // Poucas bolhas para dispositivos com limitações
+    }
+    
     // Criar elementos de bolhas para o efeito líquido
     const pageBackground = document.querySelector('.page-background');
     if (pageBackground) {
-        for (let i = 0; i < 12; i++) {
+        // Cria todas as bolhas de uma vez para evitar reflow repetido
+        const fragment = document.createDocumentFragment();
+        
+        for (let i = 0; i < bubbleCount; i++) {
             const bubble = document.createElement('div');
             bubble.className = 'liquid-bubble';
             
@@ -213,6 +394,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const duration = Math.random() * 30 + 15;
             const delay = Math.random() * 5;
             
+            // Usar menos blur e gradientes para melhorar o desempenho
+            let blurAmount = perfParams.level === 'high' ? 20 : 10;
+            
             bubble.style.cssText = `
                 position: absolute;
                 width: ${size}px;
@@ -221,112 +405,228 @@ document.addEventListener('DOMContentLoaded', function() {
                 top: ${posY}%;
                 background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
                 border-radius: 50%;
-                filter: blur(20px);
+                filter: blur(${blurAmount}px);
                 opacity: ${Math.random() * 0.3 + 0.1};
                 animation: float ${duration}s ease-in-out ${delay}s infinite alternate;
                 pointer-events: none;
+                will-change: transform, opacity;
+                transform: translateZ(0);
             `;
             
-            pageBackground.appendChild(bubble);
+            // Adiciona ao fragment para inserir tudo de uma vez
+            fragment.appendChild(bubble);
         }
+        
+        // Adiciona todas as bolhas de uma vez só para evitar múltiplos reflows
+        pageBackground.appendChild(fragment);
+        
+        // Pausa as animações quando a página não está visível
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Pausa as animações quando a página está em segundo plano
+                pageBackground.classList.add('animations-paused');
+            } else {
+                // Retoma as animações quando a página volta ao foco
+                pageBackground.classList.remove('animations-paused');
+            }
+        });
     }
     
-    // Adicionar stylesheet para animações
+    // Adicionar stylesheet para animações - otimizado com transform em vez de múltiplas propriedades
     const style = document.createElement('style');
     style.textContent = `
         @keyframes float {
             0% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
+                transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
             }
             100% {
-                transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px) rotate(${Math.random() * 30}deg) scale(${Math.random() * 0.2 + 0.9});
+                transform: translate3d(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px, 0) rotate(${Math.random() * 30}deg) scale(${Math.random() * 0.2 + 0.9});
             }
+        }
+        
+        .animations-paused .liquid-bubble {
+            animation-play-state: paused !important;
         }
     `;
     
     document.head.appendChild(style);
 });
 
-// Animações suavizadas para a página de carrinho
+// Animações super-otimizadas para a página de carrinho
 document.addEventListener('DOMContentLoaded', function() {
     // Verifica se estamos na página de carrinho
     if (window.location.pathname.includes('/cart')) {
-        // Adiciona índices para animar as linhas da tabela sequencialmente
-        const tableRows = document.querySelectorAll('.table tbody tr');
-        tableRows.forEach((row, index) => {
-            row.style.setProperty('--row-index', index);
-        });
+        // Verifica o nível de performance e ajusta os efeitos
+        const perfUtils = window.perfUtils;
+        const perfParams = perfUtils.performanceLevel.getParams();
         
-        // Efeito de movimento suave para itens do carrinho
-        const cartItems = document.querySelectorAll('.cart-item-img');
+        // Decide o comportamento de animação com base no nível de desempenho
+        let animationsEnabled = perfParams[perfParams.level].animationsEnabled;
+        let animationDelay = 50; // Padrão
         
-        cartItems.forEach((item, index) => {
-            // Pequena animação inicial para cada item
+        if (perfParams.level === 'low') {
+            animationDelay = 0; // Sem delay para dispositivos lentos
+        } else if (perfParams.level === 'medium') {
+            animationDelay = 30; // Delay reduzido para dispositivos médios
+        }
+        
+        // Se as animações forem permitidas, adiciona efeito sequencial
+        if (animationsEnabled) {
+            // Adia a animação para depois do carregamento da página
             setTimeout(() => {
-                item.style.animation = 'none';
-                item.style.transform = 'translateY(0)';
-                item.classList.add('cart-animation');
-            }, 100 * index);
-            
-            // Adiciona um efeito de flutuação suave
-            setInterval(() => {
-                const randomY = Math.random() * 3;
-                item.animate(
-                    [
-                        { transform: 'translateY(0)' },
-                        { transform: `translateY(-${randomY}px)` },
-                        { transform: 'translateY(0)' }
-                    ], 
-                    {
-                        duration: 2000 + Math.random() * 1000, 
-                        iterations: 1, 
-                        easing: 'ease-in-out',
-                        fill: 'forwards'
-                    }
-                );
-            }, 3000 + Math.random() * 1000);
-        });
-        
-        // Efeito de vidro líquido para a tabela
-        const cartTable = document.querySelector('.table');
-        if (cartTable) {
-            // Criar efeito de reflexo na tabela
-            cartTable.addEventListener('mousemove', function(e) {
-                const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                // Adiciona índices para animar as linhas da tabela sequencialmente
+                const tableRows = document.querySelectorAll('.table tbody tr');
                 
-                this.style.background = `
-                    radial-gradient(
-                        circle at ${x}px ${y}px,
-                        rgba(255, 255, 255, 0.2) 0%,
-                        rgba(255, 255, 255, 0.1) 10%,
-                        var(--glass-bg) 50%
-                    )
-                `;
-            });
-            
-            cartTable.addEventListener('mouseleave', function() {
-                this.style.background = 'var(--glass-bg)';
+                // Usa IntersectionObserver para animar apenas linhas visíveis
+                tableRows.forEach((row, index) => {
+                    row.style.setProperty('--row-index', index);
+                    row.style.setProperty('--animation-delay', `${index * animationDelay}ms`);
+                    
+                    // Observa se a linha da tabela está visível
+                    perfUtils.visibilityManager.observe(
+                        row,
+                        // Quando for visível
+                        (element) => {
+                            // Usa requestIdleCallback para não bloquear a UI
+                            perfUtils.requestIdleCallback(() => {
+                                element.classList.add('animated-row');
+                            });
+                        },
+                        // Quando não for visível
+                        (element) => {
+                            element.classList.remove('animated-row');
+                        }
+                    );
+                });
+            }, 100); // Pequeno atraso para permitir que a página carregue primeiro
+        } else {
+            // Se animações estiverem desativadas, mostra tudo de uma vez
+            document.querySelectorAll('.table tbody tr').forEach(row => {
+                row.style.opacity = 1;
             });
         }
         
-        // Anima os botões de remoção ao passar o mouse
-        const removeButtons = document.querySelectorAll('.btn-danger.btn-sm');
-        removeButtons.forEach(button => {
-            button.addEventListener('mouseover', function() {
-                // Efeito de pulsação ao passar o mouse
-                this.animate([
-                    { transform: 'scale(1)' },
-                    { transform: 'scale(1.1)' },
-                    { transform: 'scale(1)' }
-                ], {
-                    duration: 600,
-                    iterations: 1,
-                    easing: 'ease-in-out'
-                });
+        if (perfParams.animationsEnabled) {
+            // Efeito de movimento suave para itens do carrinho
+            const cartItems = document.querySelectorAll('.cart-item-img');
+            
+            // Contador para limitar o número de animações simultâneas
+            let activeAnimations = 0;
+            
+            cartItems.forEach((item, index) => {
+                // Observamos a visibilidade de cada item
+                window.perfUtils.visibilityManager.observe(
+                    item,
+                    // Quando visível
+                    (element) => {
+                        // Limita o número máximo de animações simultâneas
+                        if (activeAnimations < 5) {
+                            activeAnimations++;
+                            
+                            // Pequena animação inicial para cada item - com delay para não sobrecarregar
+                            setTimeout(() => {
+                                element.style.animation = 'none';
+                                element.style.transform = 'translateY(0)';
+                                element.classList.add('cart-animation');
+                                
+                                // Usa requestAnimationFrame para animação mais eficiente
+                                let animationId;
+                                
+                                // Função para animar com requestAnimationFrame
+                                const animateFloat = () => {
+                                    // Efeito de flutuação com pequena intensidade
+                                    const randomY = Math.random() * (perfParams.transitionSpeed * 6);
+                                    
+                                    element.animate(
+                                        [
+                                            { transform: 'translateY(0)' },
+                                            { transform: `translateY(-${randomY}px)` },
+                                            { transform: 'translateY(0)' }
+                                        ], 
+                                        {
+                                            duration: 2000 + Math.random() * 1000, 
+                                            iterations: 1, 
+                                            easing: 'ease-in-out'
+                                        }
+                                    );
+                                    
+                                    // Agenda a próxima animação com intervalo adaptado ao nível de performance
+                                    animationId = setTimeout(() => {
+                                        requestAnimationFrame(animateFloat);
+                                    }, 3000 + Math.random() * 2000);
+                                };
+                                
+                                // Inicia a animação
+                                animationId = setTimeout(() => {
+                                    requestAnimationFrame(animateFloat);
+                                }, 500 * index);
+                                
+                                // Armazena o ID da animação no elemento para poder cancelá-la depois
+                                element._animationId = animationId;
+                                
+                            }, 100 * Math.min(index, 5)); // Limita o atraso máximo
+                        }
+                    },
+                    // Quando não visível, cancela a animação para economizar recursos
+                    (element) => {
+                        if (element._animationId) {
+                            clearTimeout(element._animationId);
+                            activeAnimations = Math.max(0, activeAnimations - 1);
+                        }
+                    }
+                );
             });
-        });
+            
+            // Efeito de vidro líquido para a tabela - otimizado
+            const cartTable = document.querySelector('.table');
+            if (cartTable && perfParams.blurEffects) {
+                // Criar efeito de reflexo na tabela com throttle para limitar atualizações
+                cartTable.addEventListener('mousemove', window.perfUtils.throttle(function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Atualiza o gradiente usando requestAnimationFrame
+                    requestAnimationFrame(() => {
+                        this.style.background = `
+                            radial-gradient(
+                                circle at ${x}px ${y}px,
+                                rgba(255, 255, 255, 0.2) 0%,
+                                rgba(255, 255, 255, 0.1) 10%,
+                                var(--glass-bg) 50%
+                            )
+                        `;
+                    });
+                }, 50)); // Atualiza a cada 50ms no máximo
+                
+                cartTable.addEventListener('mouseleave', function() {
+                    // Usa requestAnimationFrame para sincronizar com o refresh do navegador
+                    requestAnimationFrame(() => {
+                        this.style.background = 'var(--glass-bg)';
+                    });
+                });
+            }
+            
+            // Anima os botões de remoção ao passar o mouse - otimizado
+            const removeButtons = document.querySelectorAll('.btn-danger.btn-sm');
+            
+            if (perfParams.animationsEnabled) {
+                removeButtons.forEach(button => {
+                    button.addEventListener('mouseover', window.perfUtils.debounce(function() {
+                        // Efeito de pulsação ao passar o mouse
+                        this.animate([
+                            { transform: 'scale(1)' },
+                            { transform: 'scale(1.1)' },
+                            { transform: 'scale(1)' }
+                        ], {
+                            duration: 600 * perfParams.transitionSpeed,
+                            iterations: 1,
+                            easing: 'ease-in-out'
+                        });
+                    }, 150)); // Evita ativar a animação várias vezes rapidamente
+                });
+            }
+        }
     }
 });
 

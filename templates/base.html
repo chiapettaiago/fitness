@@ -3,21 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}FITNESS STORE{% endblock %}</title>
-    <!-- Preload de recursos críticos -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style">
-    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Loja de roupas fitness de alta performance">
+    <meta name="theme-color" content="#e83e8c">
+    <meta http-equiv="Cache-Control" content="max-age=300"> <!-- Cache da página por 5 minutos -->
     
-    <!-- Carregamento de estilos -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Prevenção de flicker com timeout para evitar travamentos -->
+    <style>
+        .hidden-transition {opacity: 0; transition: opacity 0.3s ease-in;}
+        @media (prefers-reduced-motion: reduce) {
+            .hidden-transition {opacity: 1;}
+            * {animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;}
+        }
+    </style>
+    <script>
+        // Garante que a página ficará visível, mesmo com erros de JavaScript
+        setTimeout(function() {
+            document.body.classList.remove('hidden-transition');
+        }, 800);
+    </script>
+    
+    <title>{% block title %}FITNESS STORE{% endblock %}</title>
+    
+    <!-- Otimização de recursos: prefetch e preconect para recursos externos -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload de recursos críticos com prioridade alta -->
+    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}?v=1.2" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/performance.js') }}?v=1.1" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style" fetchpriority="high" crossorigin>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style">
+    
+    <!-- Carregamento otimizado de estilos essenciais primeiro -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}?v=1.2" rel="stylesheet">
+    
+    <!-- Carregamento assíncrono de recursos não-bloqueantes (fontes) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    
     {% block extra_css %}{% endblock %}
+    
+    <!-- Scripts críticos para otimização de performance com atributo de prioridade alta -->
+    <script src="{{ url_for('static', filename='js/performance.js') }}?v=1.1" fetchpriority="high" defer></script>
+    <script src="{{ url_for('static', filename='js/image-optimizer.js') }}" defer></script>
+    
+    <!-- Fallback para fontes e ícones -->
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    </noscript>
+    
+    <!-- Detecção e fallback para problemas com ícones -->
+    <script>
+        // Verifica se os ícones Bootstrap estão carregados corretamente
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const testIcon = document.querySelector('.nav-icon i');
+                if (testIcon) {
+                    const computedStyle = window.getComputedStyle(testIcon, ':before');
+                    const contentValue = computedStyle.getPropertyValue('content');
+                    
+                    // Se o ícone não estiver visível, tenta carregar novamente
+                    if (contentValue === 'none' || contentValue === '' || contentValue === '""') {
+                        console.log('Ícones não carregados corretamente, tentando novamente...');
+                        const link = document.createElement('link');
+                        link.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css';
+                        link.rel = 'stylesheet';
+                        document.head.appendChild(link);
+                        
+                        // Fallback para FontAwesome caso Bootstrap Icons falhe
+                        setTimeout(function() {
+                            const testAgain = window.getComputedStyle(testIcon, ':before').getPropertyValue('content');
+                            if (testAgain === 'none' || testAgain === '' || testAgain === '""') {
+                                const fallbackLink = document.createElement('link');
+                                fallbackLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+                                fallbackLink.rel = 'stylesheet';
+                                document.head.appendChild(fallbackLink);
+                                
+                                // Substitui classes bi por fa
+                                document.querySelectorAll('.bi').forEach(function(el) {
+                                    const classes = el.className.split(' ');
+                                    classes.forEach(function(cls) {
+                                        if (cls.startsWith('bi-')) {
+                                            const faClass = 'fa-' + cls.substring(3);
+                                            el.classList.remove(cls);
+                                            el.classList.add('fa');
+                                            el.classList.add(faClass);
+                                        }
+                                    });
+                                });
+                            }
+                        }, 500);
+                    }
+                }
+            }, 300); // Verifica mais rapidamente
+        });
+    </script>
 </head>
-<body>
+<body class="hidden-transition">
     <!-- Fundo de gradiente -->
     <div class="page-background"></div>
     
@@ -73,24 +160,24 @@
         <div class="container">
             <div class="mobile-nav-items">
                 <a href="/" class="mobile-nav-item {% if not current_category %}active{% endif %}">
-                    <i class="bi bi-house-door"></i>
-                    <span>Início</span>
+                    <div class="nav-icon"><i class="bi bi-house-door"></i></div>
+                    <div class="nav-text">Início</div>
                 </a>
                 <a href="/?category=camisetas" class="mobile-nav-item {% if current_category == 'camisetas' %}active{% endif %}">
-                    <i class="bi bi-person-workspace"></i>
-                    <span>Camisetas</span>
+                    <div class="nav-icon"><i class="bi bi-person-workspace"></i></div>
+                    <div class="nav-text">Camisetas</div>
                 </a>
                 <a href="/?category=calcas" class="mobile-nav-item {% if current_category == 'calcas' %}active{% endif %}">
-                    <i class="bi bi-bag"></i>
-                    <span>Calças</span>
+                    <div class="nav-icon"><i class="bi bi-bag"></i></div>
+                    <div class="nav-text">Calças</div>
                 </a>
                 <a href="/?category=acessorios" class="mobile-nav-item {% if current_category == 'acessorios' %}active{% endif %}">
-                    <i class="bi bi-watch"></i>
-                    <span>Acessórios</span>
+                    <div class="nav-icon"><i class="bi bi-watch"></i></div>
+                    <div class="nav-text">Acessórios</div>
                 </a>
                 <a href="/cart" class="mobile-nav-item">
-                    <i class="bi bi-cart3"></i>
-                    <span>Carrinho</span>
+                    <div class="nav-icon"><i class="bi bi-cart3"></i></div>
+                    <div class="nav-text">Carrinho</div>
                     {% if cart_count > 0 %}
                     <span class="mobile-badge">{{ cart_count }}</span>
                     {% endif %}
@@ -99,9 +186,38 @@
         </div>
     </nav>
 
-    <!-- Carregamento assíncrono do JavaScript -->
+    <!-- Carregamento otimizado de JavaScript com prioridades diferentes -->
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=1.2" defer fetchpriority="high"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    
+    <!-- Carregamento de recursos não críticos quando o navegador estiver ocioso -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Remove classe hidden-transition para revelar conteúdo com fade in
+        document.body.classList.remove('hidden-transition');
+        
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(function() {
+                // Verifica se o dispositivo possui boa performance
+                const perfParams = window.perfUtils.performanceLevel.getParams();
+                if (perfParams.level === 'high') {
+                    // Pré-renderiza páginas comuns apenas em dispositivos rápidos
+                    const prefetchLinks = [
+                        '/cart',
+                        '/login'
+                    ];
+                    
+                    prefetchLinks.forEach(url => {
+                        const link = document.createElement('link');
+                        link.rel = 'prefetch';
+                        link.href = url;
+                        document.head.appendChild(link);
+                    });
+                }
+            }, { timeout: 2000 }); // Define timeout para garantir que seja executado
+        }
+    });
+    </script>
     
     <!-- Modal para detalhes do produto -->
     <div id="productModal" class="product-modal">

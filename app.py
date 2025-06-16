@@ -1,31 +1,53 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, make_response
 from functools import wraps, lru_cache
 import json
 import os
+import time
 from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = 'chave_super_secreta'
 app.permanent_session_lifetime = timedelta(days=1)  # Sessão dura 1 dia
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # Cache de recursos estáticos por 1 ano
 
 # Configuração do usuário admin
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin123"
 
-# Cache para produtos
-@lru_cache(maxsize=1)
-def load_products():
-    try:
-        with open('products.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return []
+# Cache global para melhorar desempenho
+CACHE = {
+    'products': None,
+    'products_timestamp': 0,
+    'featured_products': None,
+    'category_products': {}
+}
+
+# Cache para produtos com expiração
+def load_products(force_refresh=False):
+    # Verifica se é necessário recarregar os dados
+    current_time = time.time()
+    
+    # Se o cache estiver vazio ou expirado (30 segundos) ou forçar refresh
+    if force_refresh or CACHE['products'] is None or (current_time - CACHE['products_timestamp'] > 30):
+        try:
+            with open('products.json', 'r', encoding='utf-8') as f:
+                CACHE['products'] = json.load(f)
+                CACHE['products_timestamp'] = current_time
+                # Limpa o cache de categorias
+                CACHE['category_products'] = {}
+                # Recalcula produtos em destaque
+                CACHE['featured_products'] = None
+        except FileNotFoundError:
+            CACHE['products'] = []
+            CACHE['products_timestamp'] = current_time
+            
+    return CACHE['products']
 
 def save_products(products):
     with open('products.json', 'w', encoding='utf-8') as f:
         json.dump(products, f, ensure_ascii=False, indent=4)
-    # Limpa o cache após salvar
-    load_products.cache_clear()
+    # Força atualização do cache
+    load_products(force_refresh=True)
 
 # Decorator para verificar se o usuário está logado
 def login_required(f):
@@ -37,28 +59,46 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-@lru_cache(maxsize=1)
+# Função para obter produtos em destaque (com cache)
 def get_featured_products():
-    products = load_products()
-    return sorted(products, key=lambda x: x['price'], reverse=True)[:3]
+    if CACHE['featured_products'] is None:
+        products = load_products()
+        CACHE['featured_products'] = sorted(products, key=lambda x: x['price'], reverse=True)[:3]
+    
+    return CACHE['featured_products']
 
 @app.route('/')
 def index():
     session.permanent = True  # Torna a sessão permanente
     cart_count = len(session.get('cart', []))
     featured_products = get_featured_products()
-    products = load_products()
     
-    # Filtra produtos por categoria se especificado
+    # Filtrar por categoria, se houver
     category = request.args.get('category')
-    if category:
-        products = [p for p in products if p['category'] == category]
     
-    return render_template('index.html', 
-                         products=products, 
-                         cart_count=cart_count,
-                         featured_products=featured_products,
-                         current_category=category)
+    if category:
+        # Verifica se já tem esta categoria em cache
+        if category not in CACHE['category_products']:
+            products = load_products()
+            CACHE['category_products'][category] = [p for p in products if p.get('category') == category]
+        
+        products = CACHE['category_products'][category]
+    else:
+        products = load_products()
+    
+    # Define cache-control para a página inicial
+    response = make_response(render_template(
+        'index.html', 
+        products=products, 
+        featured_products=featured_products, 
+        cart_count=cart_count, 
+        current_category=category
+    ))
+    
+    # Define cache parcial para página inicial (30 segundos)
+    response.headers['Cache-Control'] = 'public, max-age=30'
+    
+    return response
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -222,9 +262,52 @@ def api_product_details(product_id):
     product = next((p for p in products if p['id'] == product_id), None)
     
     if product:
-        return jsonify(product)
+        # Adiciona headers para cache do navegador (15 minutos)
+        response = jsonify(product)
+        response.headers['Cache-Control'] = 'public, max-age=900'
+        response.headers['Vary'] = 'Accept-Encoding'
+        
+        # Adiciona ETag baseado no timestamp do produto
+        if 'updated_at' in product:
+            response.headers['ETag'] = f'W/"{product["id"]}-{product["updated_at"]}"'
+        
+        return response
     else:
         return jsonify({"error": "Produto não encontrado"}), 404
+
+# Configurar cabeçalhos de resposta para otimização
+@app.after_request
+def add_header(response):
+    """Adiciona cabeçalhos para melhorar performance."""
+    # Nota: Estamos removendo Content-Encoding manual pois pode causar erro
+    # A compressão deve ser configurada no servidor web (nginx, apache)
+    
+    # Previne clickjacking
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    
+    # Ativa cache para recursos estáticos
+    if request.path.startswith('/static/'):
+        # Cache por 1 ano para recursos estáticos (imagens, css, js)
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+    
+    # Adiciona cabeçalhos de segurança
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    return response
+
+# Define prioridade de recursos críticos
+@app.before_request
+def before_request():
+    """Define prioridade para recursos críticos."""
+    if request.path.endswith('.css'):
+        # Prioridade para CSS
+        request.priority = 'high'
+    elif request.path.endswith('.js'):
+        # JS pode carregar depois
+        request.priority = 'low'
+    else:
+        request.priority = 'medium'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=11000, debug=False, threaded=True)
