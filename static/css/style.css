@@ -1025,6 +1025,10 @@ body {
     padding: 30px;
     position: relative;
     animation: modal-slide-in 0.3s ease;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .modal-close {
@@ -1232,4 +1236,82 @@ body {
     .nav-text {
         font-size: 0.65rem;
     }
+}
+
+/* Deixa o texto da navbar móvel branco */
+.mobile-nav-item span,
+.mobile-nav-item i,
+.mobile-nav-item .nav-text {
+    color: #fff !important;
+}
+
+/* Efeito de cristal líquido para itens selecionados na navbar móvel */
+.mobile-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.3s ease;
+    z-index: -1;
+    box-shadow: var(--glass-shadow), inset 0 0 10px rgba(255, 255, 255, 0.5);
+    border: var(--glass-border);
+    animation: pulse-light 2s infinite;
+}
+
+.mobile-nav-item.active {
+    position: relative;
+    overflow: hidden;
+}
+
+.mobile-nav-item.active .nav-icon i {
+    transform: scale(1.2);
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.mobile-nav-item.active .nav-text {
+    color: #fff;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* Animação de pulso suave para o efeito cristal */
+@keyframes pulse-light {
+    0% {
+        box-shadow: var(--glass-shadow), inset 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow: var(--glass-shadow), inset 0 0 15px rgba(255, 255, 255, 0.7);
+    }
+    100% {
+        box-shadow: var(--glass-shadow), inset 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* Melhorias para modais em dispositivos móveis */
+.product-modal-content {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    position: relative;
+}
+
+/* Estilos para garantir comportamento adequado durante e após arrasto */
+.product-modal.mobile-modal .product-modal-content {
+    touch-action: pan-y;
+}
+
+/* Garantir que o modal não tenha comportamento errático após ser fechado */
+.product-modal-content:not([style*="display: none"]) {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
 }

@@ -37,8 +37,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Função para abrir o modal
+// Função para abrir o modal com limpeza de estado
 function openProductModal(productId) {
+    // Primeiro, reseta qualquer estado de modal que possa estar pendente
+    const existingModal = document.getElementById('productModal');
+    const existingContent = document.querySelector('.product-modal-content');
+    
+    // Limpa estados anteriores para evitar comportamentos estranhos
+    if (existingContent) {
+        existingContent.style.transform = '';
+        existingContent.style.opacity = '';
+        existingContent.style.transition = '';
+    }
+    
     // Fazer requisição AJAX para obter os detalhes do produto
     fetch(`/api/product/${productId}`)
         .then(response => response.json())
@@ -56,10 +67,16 @@ function openProductModal(productId) {
             // Detecta se é um dispositivo móvel
             const isMobile = window.innerWidth < 768;
             
+            // Reseta posições e estilos
+            if (modalContent) {
+                modalContent.style.transform = '';
+                modalContent.style.opacity = '';
+                modalContent.scrollTop = 0;
+            }
+            
             if (isMobile) {
                 // Ajuste para dispositivos móveis
                 // Garantir que o conteúdo esteja visível e bem centralizado
-                modalContent.scrollTop = 0;
                 
                 // Adicionar classe específica para mobile
                 modal.classList.add('mobile-modal');
@@ -70,7 +87,9 @@ function openProductModal(productId) {
                 
                 // Aplicar estilos específicos para mobile
                 modal.style.alignItems = 'center';
-                modalContent.style.maxHeight = `${modalHeight}px`;
+                if (modalContent) {
+                    modalContent.style.maxHeight = `${modalHeight}px`;
+                }
             } else {
                 // Remove a classe mobile se existir
                 modal.classList.remove('mobile-modal');
@@ -85,14 +104,30 @@ function openProductModal(productId) {
         .catch(error => console.error('Erro ao carregar detalhes do produto:', error));
 }
 
-// Função para fechar o modal
+// Função para fechar o modal com limpeza adequada de estados
 function closeProductModal() {
     const modal = document.getElementById('productModal');
     if (modal) {
+        // Primeiro, limpe quaisquer transformações pendentes
+        const modalContent = document.querySelector('.product-modal-content');
+        if (modalContent) {
+            modalContent.style.transform = '';
+            modalContent.style.opacity = '';
+            modalContent.style.transition = '';
+        }
+        
+        // Agora esconda o modal
         modal.style.display = 'none';
         
         // Remover classe do body para permitir rolagem
         document.body.style.overflow = '';
+        
+        // Pequeno atraso antes de limpar completamente todos os estilos inline
+        setTimeout(() => {
+            if (modalContent) {
+                modalContent.removeAttribute('style');
+            }
+        }, 100);
     }
 }
 
@@ -705,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Melhorar comportamento do modal em dispositivos móveis
+// Melhorar comportamento do modal em dispositivos móveis com melhor gestão de estado
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('productModal');
     
@@ -714,12 +749,39 @@ document.addEventListener('DOMContentLoaded', function() {
         let touchStartY = 0;
         let touchMoveY = 0;
         let isDragging = false;
+        let modalContent = null;
+        
+        // Função para resetar o estado do modal completamente
+        function resetModalState() {
+            if (modalContent) {
+                modalContent.style.transition = '';
+                modalContent.style.transform = '';
+                modalContent.style.opacity = '';
+            }
+            isDragging = false;
+            touchStartY = 0;
+            touchMoveY = 0;
+        }
+        
+        // Função para limpar o estado quando o modal é fechado
+        function cleanupModalState() {
+            resetModalState();
+            
+            // Importante: remover qualquer transformação que possa ter permanecido
+            const allModals = document.querySelectorAll('.product-modal-content');
+            allModals.forEach(content => {
+                content.style.transform = '';
+                content.style.opacity = '';
+                content.style.transition = '';
+            });
+        }
         
         modal.addEventListener('touchstart', function(e) {
-            const modalContent = document.querySelector('.product-modal-content');
+            // Sempre pega a referência atualizada ao conteúdo do modal
+            modalContent = document.querySelector('.product-modal-content');
             
             // Somente permite arrasto se estiver no topo do conteúdo
-            if (modalContent.scrollTop <= 0 && window.innerWidth < 768) {
+            if (modalContent && modalContent.scrollTop <= 0 && window.innerWidth < 768) {
                 touchStartY = e.touches[0].clientY;
                 isDragging = true;
                 modalContent.style.transition = 'none';
@@ -727,10 +789,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
         
         modal.addEventListener('touchmove', function(e) {
-            if (!isDragging) return;
+            if (!isDragging || !modalContent) return;
             
             touchMoveY = e.touches[0].clientY;
-            const modalContent = document.querySelector('.product-modal-content');
             const dragDistance = touchMoveY - touchStartY;
             
             // Permite puxar para baixo para fechar o modal (apenas limitado)
@@ -741,9 +802,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
         
         modal.addEventListener('touchend', function(e) {
-            if (!isDragging) return;
+            if (!isDragging || !modalContent) return;
             
-            const modalContent = document.querySelector('.product-modal-content');
             const dragDistance = touchMoveY - touchStartY;
             
             // Restaura o estilo e transições
@@ -753,26 +813,43 @@ document.addEventListener('DOMContentLoaded', function() {
             if (dragDistance > 100) {
                 modalContent.style.transform = 'translateY(100vh)';
                 modalContent.style.opacity = '0';
-                setTimeout(closeProductModal, 300);
+                setTimeout(function() {
+                    closeProductModal();
+                    cleanupModalState();
+                }, 300);
             } else {
                 // Senão, retorna à posição normal
                 modalContent.style.transform = '';
                 modalContent.style.opacity = '';
+                resetModalState();
             }
-            
-            isDragging = false;
         });
         
         // Impede scrolling do body quando estiver tocando no modal
-        document.querySelector('.product-modal-content').addEventListener('touchmove', function(e) {
+        modal.addEventListener('touchmove', function(e) {
+            const content = document.querySelector('.product-modal-content');
+            if (!content) return;
+            
             // Se o usuário já chegou ao final do conteúdo, impede o scroll para evitar bounce
-            const isAtTop = this.scrollTop === 0;
-            const isAtBottom = this.scrollHeight - this.scrollTop === this.clientHeight;
+            const isAtTop = content.scrollTop <= 0;
+            const isAtBottom = Math.abs(content.scrollHeight - content.scrollTop - content.clientHeight) < 1;
             
             if ((isAtTop && e.touches[0].clientY > touchStartY) || 
                 (isAtBottom && e.touches[0].clientY < touchStartY)) {
                 e.preventDefault();
             }
         }, { passive: false });
+        
+        // Garantir que o estado seja limpo quando o modal for fechado por outros meios
+        document.querySelectorAll('.modal-close, .btn-outline-dark').forEach(el => {
+            el.addEventListener('click', cleanupModalState);
+        });
+        
+        // Limpar estado quando escapar
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                cleanupModalState();
+            }
+        });
     }
 });
