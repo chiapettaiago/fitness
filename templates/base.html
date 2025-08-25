@@ -32,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Preload de recursos críticos com prioridade alta -->
-    <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}?v=1.2" as="style">
+    
     <link rel="preload" href="{{ url_for('static', filename='js/performance.js') }}?v=1.1" as="script">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style" fetchpriority="high" crossorigin>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" as="style">
@@ -40,7 +40,8 @@
     <!-- Carregamento otimizado de estilos essenciais primeiro -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}?v=1.2" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/fiturban-style.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/mobile-force.css') }}?v=1.0" rel="stylesheet">
     
     <!-- Carregamento assíncrono de recursos não-bloqueantes (fontes) -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -108,37 +109,57 @@
     <!-- Fundo de gradiente -->
     <div class="page-background"></div>
     
-    <!-- Barra de navegação superior (desktop) -->
-    <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block">
-        <div class="container">
-            <a class="navbar-brand" href="/">FITNESS STORE</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if not current_category %}active{% endif %}" href="/">TODOS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if current_category == 'camisetas' %}active{% endif %}" href="/?category=camisetas">CAMISETAS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if current_category == 'calcas' %}active{% endif %}" href="/?category=calcas">CALÇAS</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if current_category == 'acessorios' %}active{% endif %}" href="/?category=acessorios">ACESSÓRIOS</a>
-                    </li>
-                </ul>
-                <div class="navbar-nav">
-                    <a class="nav-link" href="/login">ADMIN</a>
-                    <a class="nav-link" href="/cart">
-                        CARRINHO
-                        {% if cart_count > 0 %}
-                        <span class="badge bg-danger">{{ cart_count }}</span>
-                        {% endif %}
-                    </a>
+    <!-- Topbar Desktop (estilo Fiturban) -->
+    <header class="desktop-topbar d-none d-lg-block">
+        <div class="container topbar-wrap">
+            <div class="topbar-left">
+                <button id="desktopMenuBtn" class="icon-btn" aria-label="Abrir menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <a href="/?esp=lancamentos" class="topbar-link">Lançamentos</a>
+                <a href="/?o=1" class="topbar-link">Mais Vendidos</a>
+                <a href="/?esp=sale" class="topbar-link sale-pill">Sale</a>
+                <a href="/?colecao=fitbasic" class="topbar-link fitbasic">FIT BASIC</a>
+            </div>
+            <div class="topbar-center">
+                <a href="/" class="topbar-logo">FITNESS STORE</a>
+            </div>
+            <div class="topbar-right">
+                <div class="search-pill">
+                    <i class="bi bi-search"></i>
+                    <input type="search" placeholder="O que você procura?" aria-label="Buscar" />
                 </div>
+                <a href="/login" class="icon-btn" aria-label="Login"><i class="bi bi-person"></i></a>
+                <span class="divider">|</span>
+                <a href="/cart" class="icon-btn position-relative" aria-label="Carrinho">
+                    <i class="bi bi-bag"></i>
+                    {% if cart_count > 0 %}
+                    <span class="cart-badge">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
             </div>
         </div>
-    </nav>
+        <div class="topbar-underline"></div>
+    </header>
+
+    <!-- Header Mobile (estilo Fiturban) - Sempre visível no mobile -->
+    <div class="mobile-header d-block d-lg-none">
+        <button id="mobileMenuBtn" class="mobile-header-btn" aria-label="Abrir menu">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="logo">FITNESS STORE</div>
+        <div class="mobile-header-actions">
+            <button class="mobile-header-btn" onclick="openSearch()" aria-label="Buscar">
+                <i class="bi bi-search"></i>
+            </button>
+            <a href="/cart" class="mobile-header-btn" aria-label="Carrinho">
+                <i class="bi bi-bag"></i>
+                {% if cart_count > 0 %}
+                <span class="badge">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
 
     <!-- Conteúdo principal -->
     <div class="main-content">
@@ -155,35 +176,17 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Barra de navegação inferior (mobile) -->
-    <nav class="mobile-nav d-lg-none">
-        <div class="container">
-            <div class="mobile-nav-items">
-                <a href="/" class="mobile-nav-item {% if not current_category %}active{% endif %}">
-                    <div class="nav-icon"><i class="bi bi-house-door"></i></div>
-                    <div class="nav-text">Início</div>
-                </a>
-                <a href="/?category=camisetas" class="mobile-nav-item {% if current_category == 'camisetas' %}active{% endif %}">
-                    <div class="nav-icon"><i class="bi bi-person-workspace"></i></div>
-                    <div class="nav-text">Produtos</div>
-                </a>
-                <a href="/login" class="mobile-nav-item">
-                    <div class="nav-icon"><i class="bi bi-person-gear"></i></div>
-                    <div class="nav-text">Admin</div>
-                </a>
-                <a href="/cart" class="mobile-nav-item">
-                    <div class="nav-icon"><i class="bi bi-cart3"></i></div>
-                    <div class="nav-text">Carrinho</div>
-                    {% if cart_count > 0 %}
-                    <span class="mobile-badge">{{ cart_count }}</span>
-                    {% endif %}
-                </a>
-            </div>
-        </div>
-    </nav>
+    <!-- Barra de navegação inferior removida -->
+
+    <!-- WhatsApp Float Button (estilo Fiturban) - Apenas mobile -->
+    <a href="https://wa.me/5521972940130" class="whatsapp-float d-block d-lg-none" target="_blank">
+        <i class="bi bi-whatsapp"></i>
+    </a>
 
     <!-- Carregamento otimizado de JavaScript com prioridades diferentes -->
     <script src="{{ url_for('static', filename='js/main.js') }}?v=1.2" defer fetchpriority="high"></script>
+    <script src="{{ url_for('static', filename='js/fiturban-carousel.js') }}?v=1.0" defer></script>
+    <script src="{{ url_for('static', filename='js/fiturban-mobile.js') }}?v=1.0" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     
     <!-- Carregamento de recursos não críticos quando o navegador estiver ocioso -->
@@ -227,10 +230,7 @@
                     <h2 id="modalProductTitle" class="modal-title"></h2>
                     <p id="modalProductDescription" class="lead"></p>
                     <p id="modalProductPrice" class="modal-price"></p>
-                    <div class="d-grid gap-2">
-                        <a id="modalAddToCartBtn" href="" class="btn btn-success btn-lg">ADICIONAR AO CARRINHO</a>
-                        <button onclick="closeProductModal()" class="btn btn-outline-dark btn-lg">CONTINUAR COMPRANDO</button>
-                    </div>
+                    <!-- Botões grandes removidos por solicitação -->
                     <!-- Indicador de arraste para dispositivos móveis -->
                     <div class="modal-drag-indicator d-md-none">
                         <div class="drag-line"></div>
@@ -240,6 +240,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Sidebar Mobile (Hambúrguer) -->
+    <div class="mobile-sidebar" id="mobileSidebar" aria-hidden="true">
+        <div class="mobile-sidebar-header">
+            <span>Menu</span>
+            <button id="mobileMenuClose" class="icon-btn" aria-label="Fechar menu">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <nav class="mobile-sidebar-nav">
+            <a href="/?esp=lancamentos" class="sidebar-link">Lançamentos</a>
+            <a href="/?o=1" class="sidebar-link">Mais Vendidos</a>
+            <a href="/?esp=sale" class="sidebar-link">Sale</a>
+            <a href="/?colecao=fitbasic" class="sidebar-link">Fit Basic</a>
+            <hr>
+            <a href="/" class="sidebar-link">Todos</a>
+            <a href="/?category=camisetas" class="sidebar-link">Camisetas</a>
+            <a href="/?category=calcas" class="sidebar-link">Calças</a>
+            <a href="/?category=acessorios" class="sidebar-link">Acessórios</a>
+            <hr>
+            <a href="/login" class="sidebar-link">Admin</a>
+            <a href="/cart" class="sidebar-link">Carrinho</a>
+        </nav>
+    </div>
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

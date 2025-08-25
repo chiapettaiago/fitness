@@ -1,19 +1,90 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<section class="hero-section" style="position:relative;">
+<!-- Hero Banner Minimalista -->
+<section class="hero-banner">
     <div class="container">
-        <div class="hero-content text-center">
-            <h1 class="hero-title" style="font-size:3.2rem;">LINHA ESPECIAL PARA MULHERES </h1>
-            <p class="hero-subtitle" style="font-size:1.3rem;">Descubra sua melhor versão com looks fitness pensados para o seu estilo, conforto e autoestima!</p>
-            <a href="#featured" class="btn hero-cta" style="font-size:1.1rem;">VER COLEÇÃO FEMININA</a>
+        <div class="hero-content">
+            <div class="promo-banner">
+                <i class="bi bi-truck"></i>
+                <span>Frete grátis nas compras acima de R$ 199</span>
+            </div>
         </div>
-        <div class="alert alert-pink mt-4" style="background:linear-gradient(90deg,#f48fb1,#e83e8c);color:#fff;font-weight:600;font-size:1.1rem;border:none;box-shadow:0 2px 10px #f48fb1b0;">
-            <i class="bi bi-gem"></i> <span style="font-size:1.2rem;">Quer ter um site como este? <a href="https://wa.me/5599999999999" style="color:#fff;text-decoration:underline;font-weight:700;">Compre agora!</a></span>
+    </div>
+</section>
+
+<!-- Hero Slider (3 itens estilo Fiturban) -->
+<section class="hero-slider" aria-label="Destaques">
+    {% set has_banners = banners is defined and banners %}
+    {% if has_banners %}
+        {% for b in banners %}
+        <div class="hero-slide {% if loop.first %}active{% endif %}" style="background-image:url('{{ b.image }}');">
+            <div class="hero-overlay container">
+                <div class="hero-kicker">{{ b.kicker }}</div>
+                <h1 class="hero-title">{{ b.title }}</h1>
+                <a href="{{ b.cta_url }}" class="hero-cta">{{ b.cta_text }}</a>
+            </div>
         </div>
-        <div class="mt-3 text-center" style="font-size:1.1rem;color:#e83e8c;font-weight:600;">
-            "Vista-se de autoestima, conquiste o mundo!"
+        {% endfor %}
+    {% else %}
+        <!-- Fallback de 3 slides se não houver banners -->
+        <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1549049950-48d5887197ce?q=80&w=1600&auto=format&fit=crop');">
+            <div class="hero-overlay container">
+                <div class="hero-kicker">LANÇAMENTOS</div>
+                <h1 class="hero-title">Novas peças para elevar o seu treino</h1>
+                <a href="/?esp=lancamentos" class="hero-cta">Comprar agora</a>
+            </div>
+        </div>
+        <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1517963879433-6ad2b056d712?q=80&w=1600&auto=format&fit=crop');">
+            <div class="hero-overlay container">
+                <div class="hero-kicker">FIT BASIC</div>
+                <h1 class="hero-title">Básicos versáteis para todos os dias</h1>
+                <a href="/?colecao=fitbasic" class="hero-cta">Ver coleção</a>
+            </div>
+        </div>
+        <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1571907480495-3f5fd9b3be26?q=80&w=1600&auto=format&fit=crop');">
+            <div class="hero-overlay container">
+                <div class="hero-kicker">SALE</div>
+                <h1 class="hero-title">Descontos imperdíveis por tempo limitado</h1>
+                <a href="/?esp=sale" class="hero-cta">Aproveitar</a>
+            </div>
+        </div>
+    {% endif %}
+    <button class="hero-nav prev" aria-label="Slide anterior"><i class="bi bi-chevron-left"></i></button>
+    <button class="hero-nav next" aria-label="Próximo slide"><i class="bi bi-chevron-right"></i></button>
+    <div class="hero-dots" aria-label="Navegação de slides"></div>
+    <span class="visually-hidden" role="status" aria-live="polite" id="hero-status"></span>
+    <div class="hero-bottom-fade"></div>
+</section>
+
+<!-- Navegação de Categorias Horizontal -->
+<section class="category-horizontal">
+    <div class="container">
+        <div class="category-scroll">
+            <a href="/" class="category-item {% if not current_category %}active{% endif %}">
+                <div class="category-circle">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                </div>
+                <span>todos</span>
+            </a>
+            <a href="/?category=camisetas" class="category-item {% if current_category == 'camisetas' %}active{% endif %}">
+                <div class="category-circle">
+                    <i class="bi bi-person"></i>
+                </div>
+                <span>top</span>
+            </a>
+            <a href="/?category=calcas" class="category-item {% if current_category == 'calcas' %}active{% endif %}">
+                <div class="category-circle">
+                    <i class="bi bi-square"></i>
+                </div>
+                <span>legging</span>
+            </a>
+            <a href="/?category=acessorios" class="category-item {% if current_category == 'acessorios' %}active{% endif %}">
+                <div class="category-circle">
+                    <i class="bi bi-bag"></i>
+                </div>
+                <span>short</span>
+            </a>
         </div>
     </div>
 </section>
@@ -30,21 +101,43 @@
         {% endif %}
     {% endwith %}
 
-    <section id="featured" class="featured-section">
-        <h2 class="section-title">DESTAQUES DA COLEÇÃO FEMININA </h2>
-        <div class="row">
+    <!-- Seção Lançamentos -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Lançamentos</h2>
+            <div class="carousel-controls">
+                <button class="carousel-btn prev" id="featuredPrev">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="carousel-btn next" id="featuredNext">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="products-carousel" id="featuredCarousel">
             {% for product in featured_products %}
-            <div class="col-md-4">
-                <div class="featured-card">
-                    <span class="featured-badge">Novo</span>
-                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" loading="lazy" decoding="async" width="300" height="300" sizes="(max-width: 768px) 50vw, 300px">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="price">R$ {{ "%.2f"|format(product.price) }}</p>
-                        <div class="d-grid gap-2">
-                            <a href="/product/{{ product.id }}" class="btn btn-primary btn-details" data-product-id="{{ product.id }}">VER DETALHES</a>
-                            <a href="/add_to_cart/{{ product.id }}" class="btn btn-success">ADICIONAR</a>
-                        </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy" decoding="async">
+                    <div class="product-sizes">
+                        <span>P</span><span>M</span><span>G</span>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-code">PRETO | {{ product.id }}</p>
+                    <div class="product-price">
+                        <span class="price-main">R$ {{ "%.2f"|format(product.price) }}</span>
+                        <span class="price-installment">10% off no PIX ou</span>
+                        <span class="price-installment">10x de R$ {{ "%.2f"|format(product.price / 10) }}</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-quick-view" data-product-id="{{ product.id }}">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <a href="/add_to_cart/{{ product.id }}" class="btn-add-cart">
+                            <i class="bi bi-bag-plus"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -52,43 +145,111 @@
         </div>
     </section>
 
-    <nav class="category-nav d-none d-lg-block">
-        <div class="container">
-            <ul class="nav justify-content-center">
-                <li class="nav-item">
-                    <a class="nav-link {% if not current_category %}active{% endif %}" href="/">TODOS</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if current_category == 'camisetas' %}active{% endif %}" href="/?category=camisetas">CAMISETAS</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if current_category == 'calcas' %}active{% endif %}" href="/?category=calcas">CALÇAS</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if current_category == 'acessorios' %}active{% endif %}" href="/?category=acessorios">ACESSÓRIOS</a>
-                </li>
-            </ul>
+    <!-- Seção Escolha sua Motivação -->
+    <section class="motivation-section">
+        <h2 class="section-title">Escolha sua motivação</h2>
+        <div class="motivation-grid">
+            <div class="motivation-card">
+                <div class="motivation-image">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Impulso">
+                </div>
+                <div class="motivation-content">
+                    <h3>IMPULSO</h3>
+                    <p>Feito para movimentos que nunca se limitam, e que valorizam suas performances e versões. Seu treino, seu impulso, suas peças!</p>
+                </div>
+            </div>
+            <div class="motivation-card">
+                <div class="motivation-image">
+                    <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Fit Basic">
+                </div>
+                <div class="motivation-content">
+                    <h3>FIT BASIC</h3>
+                    <p>Com peças versáteis que se adaptam a qualquer guarda-roupa, é a melhor escolha do casual ao esportivo. Encontre agora seu básico ideal!</p>
+                </div>
+            </div>
+            <div class="motivation-card">
+                <div class="motivation-image">
+                    <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Conexão">
+                </div>
+                <div class="motivation-content">
+                    <h3>CONEXÃO</h3>
+                    <p>Desenvolvida pensando na sua sinergia e o contato mais profundo com seu interior. Descubra agora sua melhor versão!</p>
+                </div>
+            </div>
         </div>
-    </nav>
+    </section>
 
-    <section class="product-grid">
-        <h2 class="section-title">TODOS OS PRODUTOS</h2>
-        <div class="row">
+    <!-- Seção Mais Vendidos -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Mais Vendidos</h2>
+            <div class="carousel-controls">
+                <button class="carousel-btn prev" id="bestsellersPrev">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="carousel-btn next" id="bestsellersNext">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="products-carousel" id="bestsellersCarousel">
             {% for product in products %}
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" loading="lazy" decoding="async" width="300" height="300" sizes="(max-width: 768px) 50vw, 300px">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="price">R$ {{ "%.2f"|format(product.price) }}</p>
-                        <div class="d-grid gap-2">
-                            <a href="/product/{{ product.id }}" class="btn btn-primary btn-details" data-product-id="{{ product.id }}">VER DETALHES</a>
-                            <a href="/add_to_cart/{{ product.id }}" class="btn btn-success">ADICIONAR</a>
-                        </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy" decoding="async">
+                    <div class="product-sizes">
+                        <span>P</span><span>M</span><span>G</span>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-code">PRETO | {{ product.id }}</p>
+                    <div class="product-price">
+                        <span class="price-main">R$ {{ "%.2f"|format(product.price) }}</span>
+                        <span class="price-installment">10% off no PIX ou</span>
+                        <span class="price-installment">10x de R$ {{ "%.2f"|format(product.price / 10) }}</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-quick-view" data-product-id="{{ product.id }}">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <a href="/add_to_cart/{{ product.id }}" class="btn-add-cart">
+                            <i class="bi bi-bag-plus"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             {% endfor %}
+        </div>
+    </section>
+
+    <!-- Aviso de Compra do Site -->
+    <section class="purchase-notice">
+        <div class="notice-card">
+            <div class="notice-content">
+                <i class="bi bi-gem"></i>
+                <h3>Quer ter um site como este?</h3>
+                <p>Entre em contato e tenha sua loja online profissional</p>
+                <a href="https://wa.me/5521972940130" class="btn-contact" target="_blank">
+                    <i class="bi bi-whatsapp"></i>
+                    Fale Conosco
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Redes Sociais (estilo Fiturban) -->
+    <section class="social-footer d-lg-none">
+        <h4>Siga nossas redes sociais!</h4>
+        <div class="social-links">
+            <a href="#" class="social-link">
+                <i class="bi bi-instagram"></i>
+                <span>@fitnessstore</span>
+            </a>
+            <a href="#" class="social-link">
+                <i class="bi bi-facebook"></i>
+                <span>@fitnessstore</span>
+            </a>
         </div>
     </section>
 </div>

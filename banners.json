@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "kicker": "LANÇAMENTOS",
+    "title": "Novas peças para elevar o seu treino",
+    "cta_text": "Comprar agora",
+    "cta_url": "/?esp=lancamentos",
+    "image": "https://images.unsplash.com/photo-1549049950-48d5887197ce?q=80&w=1600&auto=format&fit=crop"
+  },
+  {
+    "id": 2,
+    "kicker": "FIT BASIC",
+    "title": "Básicos versáteis para todos os dias",
+    "cta_text": "Ver coleção",
+    "cta_url": "/?colecao=fitbasic",
+    "image": "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?q=80&w=1600&auto=format&fit=crop"
+  },
+  {
+    "id": 3,
+    "kicker": "SALE",
+    "title": "Descontos imperdíveis por tempo limitado",
+    "cta_text": "Aproveitar",
+    "cta_url": "/?esp=sale",
+    "image": "https://images.unsplash.com/photo-1571907480495-3f5fd9b3be26?q=80&w=1600&auto=format&fit=crop"
+  }
+]

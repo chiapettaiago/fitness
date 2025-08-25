@@ -26,7 +26,9 @@ CACHE = {
     'products': None,
     'products_timestamp': 0,
     'featured_products': None,
-    'category_products': {}
+    'category_products': {},
+    'banners': None,
+    'banners_timestamp': 0
 }
 
 # Cache para produtos com expiração
@@ -56,6 +58,45 @@ def save_products(products):
     # Força atualização do cache
     load_products(force_refresh=True)
 
+# Cache para banners do hero
+def load_banners(force_refresh=False):
+    current_time = time.time()
+    if force_refresh or CACHE['banners'] is None or (current_time - CACHE['banners_timestamp'] > 60):
+        try:
+            with open('banners.json', 'r', encoding='utf-8') as f:
+                CACHE['banners'] = json.load(f)
+                CACHE['banners_timestamp'] = current_time
+        except FileNotFoundError:
+            # Fallback padrão (3 banners)
+            CACHE['banners'] = [
+                {
+                    "id": 1,
+                    "kicker": "LANÇAMENTOS",
+                    "title": "Novas peças para elevar o seu treino",
+                    "cta_text": "Comprar agora",
+                    "cta_url": "/?esp=lancamentos",
+                    "image": "https://images.unsplash.com/photo-1549049950-48d5887197ce?q=80&w=1600&auto=format&fit=crop"
+                },
+                {
+                    "id": 2,
+                    "kicker": "FIT BASIC",
+                    "title": "Básicos versáteis para todos os dias",
+                    "cta_text": "Ver coleção",
+                    "cta_url": "/?colecao=fitbasic",
+                    "image": "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?q=80&w=1600&auto=format&fit=crop"
+                },
+                {
+                    "id": 3,
+                    "kicker": "SALE",
+                    "title": "Descontos imperdíveis por tempo limitado",
+                    "cta_text": "Aproveitar",
+                    "cta_url": "/?esp=sale",
+                    "image": "https://images.unsplash.com/photo-1571907480495-3f5fd9b3be26?q=80&w=1600&auto=format&fit=crop"
+                }
+            ]
+            CACHE['banners_timestamp'] = current_time
+    return CACHE['banners']
+
 # Decorator para verificar se o usuário está logado
 def login_required(f):
     @wraps(f)
@@ -79,6 +120,7 @@ def index():
     session.permanent = True  # Torna a sessão permanente
     cart_count = len(session.get('cart', []))
     featured_products = get_featured_products()
+    banners = load_banners()
     
     # Filtrar por categoria, se houver
     category = request.args.get('category')
@@ -94,7 +136,7 @@ def index():
         products = load_products()
 
     # ETag baseado no timestamp de produtos + categoria + quantidade
-    etag = f'W/"index-{int(CACHE["products_timestamp"])}-{category or "all"}-{len(products)}"'
+    etag = f'W/"index-{int(CACHE["products_timestamp"])}-{int(CACHE["banners_timestamp"])}-{category or "all"}-{len(products)}"'
     client_etag = request.headers.get('If-None-Match')
     if client_etag == etag:
         resp = make_response('', 304)
@@ -108,6 +150,7 @@ def index():
         'index.html',
         products=products,
         featured_products=featured_products,
+    banners=banners,
         cart_count=cart_count,
         current_category=category
     ))
