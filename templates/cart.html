@@ -15,7 +15,13 @@
         {% endif %}
     {% endwith %}
 
-    <h1 class="section-title mb-4">CARRINHO</h1>
+    <h1 class="section-title mb-4">CARRINHO <span style="color:#e83e8c;">&#10084;&#65039;</span></h1>
+    <div class="alert alert-pink mb-4" style="background:linear-gradient(90deg,#f48fb1,#e83e8c);color:#fff;font-weight:600;border:none;box-shadow:0 2px 10px #f48fb1b0;">
+        <i class="bi bi-gem"></i> Quer um site como este? <a href="https://wa.me/5599999999999" style="color:#fff;text-decoration:underline;font-weight:700;">Compre agora!</a>
+    </div>
+    <div class="mb-3 text-center" style="font-size:1.1rem;color:#e83e8c;font-weight:600;">
+        "Vista-se de autoestima, conquiste o mundo!"
+    </div>
 
     {% if cart_items %}
     <div class="admin-card">
@@ -35,7 +41,7 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="{{ item.image }}" alt="{{ item.name }}" class="me-3 cart-item-img">
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="me-3 cart-item-img" loading="lazy" decoding="async" width="80" height="80" sizes="80px">
                             <span class="fw-bold">{{ item.name }}</span>
                         </div>
                     </td>

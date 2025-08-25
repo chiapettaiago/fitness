@@ -1,14 +1,15 @@
 :root {
-    --primary-color: #e83e8c;
-    --secondary-color: #9c27b0;
-    --accent-color: #f48fb1;
-    --background-color: #fff;
-    --text-color: #4a4a4a;
-    --card-shadow: 0 8px 20px rgba(234, 76, 137, 0.15);
+    /* Mantém o rosa como cor de destaque e torna o restante neutro/moderno */
+    --primary-color: #e83e8c; /* Rosa principal (mantido) */
+    --secondary-color: #344054; /* Cinza neutro moderno no lugar do roxo */
+    --accent-color: #f48fb1; /* Rosa claro de apoio (mantido) */
+    --background-color: #ffffff; /* Fundo neutro */
+    --text-color: #111827; /* Cinza 900 (neutro e legível) */
+    --card-shadow: 0 8px 20px rgba(17, 24, 39, 0.08); /* Sombra neutra */
     --transition-speed: 0.3s;
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.3);
-    --glass-shadow: 0 8px 32px 0 rgba(217, 95, 179, 0.37);
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: 1px solid rgba(0, 0, 0, 0.06);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15); /* Sombra neutra */
 }
 
 /* Reset e estilos base */
@@ -27,7 +28,7 @@ body {
 
 /* Navbar */
 .navbar {
-    background: rgba(232, 62, 140, 0.85);
+    background: rgba(17, 24, 39, 0.85); /* neutro escuro */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: var(--glass-shadow);
@@ -47,16 +48,14 @@ body {
     transition: color var(--transition-speed);
 }
 
-.nav-link:hover {
-    color: var(--accent-color) !important;
-}
+.nav-link:hover { color: var(--primary-color) !important; }
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(45deg, #f3f4f6, #e5e7eb); /* cinzas claros */
     position: relative;
     overflow: hidden;
-    color: var(--background-color);
+    color: var(--secondary-color);
     padding: 6rem 0;
     margin-bottom: 2rem;
 }
@@ -95,8 +94,8 @@ body {
 }
 
 .hero-cta {
-    background-color: var(--accent-color);
-    color: var(--primary-color);
+    background-color: var(--primary-color); /* rosa como destaque */
+    color: #fff;
     font-weight: 600;
     padding: 0.8rem 2rem;
     border: none;
@@ -139,10 +138,7 @@ body {
     pointer-events: none;
 }
 
-.card:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 15px 30px rgba(234, 76, 137, 0.25);
-}
+.card:hover { transform: translateY(-8px) scale(1.01); box-shadow: 0 15px 30px rgba(17, 24, 39, 0.18); }
 
 .card:hover::before {
     left: 100%;
@@ -165,18 +161,9 @@ body {
     -webkit-backdrop-filter: blur(5px);
 }
 
-.card-title {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--secondary-color);
-}
+.card-title { font-weight: 600; margin-bottom: 0.5rem; color: var(--secondary-color); }
 
-.price {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-}
+.price { font-weight: 700; font-size: 1.2rem; color: var(--primary-color); margin-bottom: 1rem; }
 
 /* Featured Products */
 .featured-card {
@@ -197,19 +184,7 @@ body {
     position: relative;
 }
 
-.featured-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    z-index: 1;
-    box-shadow: 0 4px 8px rgba(234, 76, 137, 0.3);
-}
+.featured-badge { position:absolute;top:15px;right:15px;background:#111827;color:#fff;padding:5px 15px;border-radius:20px;font-size:0.8rem;font-weight:600;z-index:1;box-shadow:0 4px 8px rgba(0,0,0,0.2); }
 
 /* Category Navigation */
 .category-nav {
@@ -247,7 +222,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: #111827; /* botão primário neutro */
     border: none;
     position: relative;
     z-index: 1;
@@ -262,7 +237,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    background: linear-gradient(135deg, #6b7280, #374151);
     transition: all 0.4s ease;
     z-index: -1;
 }
@@ -272,7 +247,7 @@ body {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #36d1dc, #5b86e5);
+    background: var(--primary-color); /* rosa como cor de ação */
     border: none;
     position: relative;
     z-index: 1;
@@ -286,7 +261,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #5b86e5, #36d1dc);
+    background: linear-gradient(135deg, #f472b6, #ec4899);
     transition: all 0.4s ease;
     z-index: -1;
 }
@@ -334,8 +309,8 @@ body {
 }
 
 .table thead th {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
+    background: #111827; /* cabeçalho neutro */
+    color: #fff;
     font-weight: 600;
     letter-spacing: 1px;
     padding: 15px;
@@ -406,16 +381,7 @@ body {
 }
 
 /* Fundo de gradiente para páginas */
-.page-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(232, 62, 140, 0.1), rgba(156, 39, 176, 0.1));
-    z-index: -1;
-    pointer-events: none;
-}
+.page-background { position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#f8fafc,#f3f4f6);z-index:-1;pointer-events:none; }
 
 .page-background::before {
     content: "";
@@ -837,11 +803,13 @@ body {
     }
 }
 
-/* Ajuste para telas muito pequenas */
-@media (max-width: 350px) {
+/* Ajuste para telas muito pequenas com 6 itens */
+@media (max-width: 360px) {
     .mobile-nav-item {
         gap: 2px;
-        padding: 0.5rem 0.2rem;
+        padding: 0.4rem 0.1rem;
+        min-width: 40px;
+        max-width: 55px;
     }
     
     .mobile-nav-item i {
@@ -850,7 +818,7 @@ body {
     }
     
     .mobile-nav-item span {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
     }
     
     .mobile-badge {
@@ -870,7 +838,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(232, 62, 140, 0.9);
+    background: rgba(17, 24, 39, 0.9); /* neutro escuro */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-top: var(--glass-border);
@@ -893,9 +861,11 @@ body {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center;
-    min-width: 50px;
+    min-width: 45px;
     text-align: center;
     gap: 0;
+    flex: 1;
+    max-width: 70px;
 }
 
 .mobile-nav-item::before {
@@ -1013,12 +983,10 @@ body {
 }
 
 .product-modal-content {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: var(--glass-border);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     border-radius: 20px;
-    box-shadow: var(--glass-shadow);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     max-width: 800px;
     width: 90%;
     margin: 50px auto;
@@ -1093,11 +1061,10 @@ body {
         width: 95%;
         overflow-y: auto;
         
-        /* Efeito de vidro líquido aprimorado para mobile */
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        box-shadow: 0 10px 40px rgba(234, 76, 137, 0.4);
+        /* Fundo branco sólido para mobile */
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
         
         /* Animação melhorada */
         animation: modal-slide-in-mobile 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1148,9 +1115,8 @@ body {
         right: 10px;
         width: 35px;
         height: 35px;
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
         border-radius: 50%;
         display: flex;
         align-items: center;

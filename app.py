@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, make_response
+from flask_compress import Compress
 from functools import wraps, lru_cache
 import json
 import os
@@ -9,6 +10,12 @@ app = Flask(__name__)
 app.secret_key = 'chave_super_secreta'
 app.permanent_session_lifetime = timedelta(days=1)  # Sessão dura 1 dia
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # Cache de recursos estáticos por 1 ano
+app.config['COMPRESS_MIMETYPES'] = ['text/html', 'text/css', 'text/xml', 'application/json', 'application/javascript']
+app.config['COMPRESS_LEVEL'] = 6
+app.config['COMPRESS_MIN_SIZE'] = 512
+
+# Ativa compressão GZIP/Brotli (se disponível)
+Compress(app)
 
 # Configuração do usuário admin
 ADMIN_USERNAME = "admin"
@@ -85,19 +92,28 @@ def index():
         products = CACHE['category_products'][category]
     else:
         products = load_products()
-    
-    # Define cache-control para a página inicial
+
+    # ETag baseado no timestamp de produtos + categoria + quantidade
+    etag = f'W/"index-{int(CACHE["products_timestamp"])}-{category or "all"}-{len(products)}"'
+    client_etag = request.headers.get('If-None-Match')
+    if client_etag == etag:
+        resp = make_response('', 304)
+        resp.headers['ETag'] = etag
+        resp.headers['Cache-Control'] = 'public, max-age=30'
+        resp.headers['Vary'] = 'Accept-Encoding'
+        return resp
+
+    # Renderiza normalmente
     response = make_response(render_template(
-        'index.html', 
-        products=products, 
-        featured_products=featured_products, 
-        cart_count=cart_count, 
+        'index.html',
+        products=products,
+        featured_products=featured_products,
+        cart_count=cart_count,
         current_category=category
     ))
-    
-    # Define cache parcial para página inicial (30 segundos)
+    response.headers['ETag'] = etag
     response.headers['Cache-Control'] = 'public, max-age=30'
-    
+    response.headers['Vary'] = 'Accept-Encoding'
     return response
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -126,7 +142,10 @@ def login():
     if 'logged_in' in session:
         return redirect(url_for('admin_dashboard'))
         
-    return render_template('login.html', cart_count=cart_count)
+    resp = make_response(render_template('login.html', cart_count=cart_count))
+    resp.headers['Cache-Control'] = 'no-store, max-age=0'
+    resp.headers['Vary'] = 'Accept-Encoding'
+    return resp
 
 @app.route('/logout')
 def logout():
@@ -138,7 +157,10 @@ def logout():
 @login_required
 def admin_dashboard():
     products = load_products()
-    return render_template('admin/dashboard.html', products=products)
+    resp = make_response(render_template('admin/dashboard.html', products=products))
+    resp.headers['Cache-Control'] = 'no-store, max-age=0'
+    resp.headers['Vary'] = 'Accept-Encoding'
+    return resp
 
 @app.route('/admin/products/add', methods=['GET', 'POST'])
 @login_required
@@ -200,7 +222,26 @@ def product(product_id):
     products = load_products()
     product = next((p for p in products if p['id'] == product_id), None)
     cart_count = len(session.get('cart', []))
-    return render_template('product.html', product=product, cart_count=cart_count)
+    if product:
+        etag = f'W/"product-{product["id"]}-{int(CACHE["products_timestamp"])}"'
+        client_etag = request.headers.get('If-None-Match')
+        if client_etag == etag:
+            resp = make_response('', 304)
+            resp.headers['ETag'] = etag
+            resp.headers['Cache-Control'] = 'public, max-age=60'
+            resp.headers['Vary'] = 'Accept-Encoding'
+            return resp
+
+        resp = make_response(render_template('product.html', product=product, cart_count=cart_count))
+        resp.headers['ETag'] = etag
+        resp.headers['Cache-Control'] = 'public, max-age=60'
+        resp.headers['Vary'] = 'Accept-Encoding'
+        return resp
+    else:
+        resp = make_response(render_template('product.html', product=None, cart_count=cart_count))
+        resp.headers['Cache-Control'] = 'public, max-age=30'
+        resp.headers['Vary'] = 'Accept-Encoding'
+        return resp
 
 @app.route('/add_to_cart/<int:product_id>')
 def add_to_cart(product_id):
@@ -253,7 +294,10 @@ def cart():
                 total += product['price'] * quantity
     
     cart_count = len(cart_ids)
-    return render_template('cart.html', cart_items=cart_items, total=total, cart_count=cart_count)
+    resp = make_response(render_template('cart.html', cart_items=cart_items, total=total, cart_count=cart_count))
+    resp.headers['Cache-Control'] = 'no-store, max-age=0'
+    resp.headers['Vary'] = 'Accept-Encoding'
+    return resp
 
 # API para obter detalhes do produto
 @app.route('/api/product/<int:product_id>')
@@ -285,6 +329,9 @@ def add_header(response):
     # Previne clickjacking
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     
+    # Vary para compressão
+    response.headers.setdefault('Vary', 'Accept-Encoding')
+
     # Ativa cache para recursos estáticos
     if request.path.startswith('/static/'):
         # Cache por 1 ano para recursos estáticos (imagens, css, js)

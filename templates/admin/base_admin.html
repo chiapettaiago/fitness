@@ -17,7 +17,7 @@
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body style="overflow:hidden;">
     <!-- Fundo de gradiente -->
     <div class="page-background"></div>
     
@@ -52,5 +52,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
     {% block extra_js %}{% endblock %}
+
+    <!-- Overlay de bloqueio do Admin -->
+    <style>
+        .admin-block-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg, rgba(232,62,140,.92), rgba(156,39,176,.92));backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);display:flex;align-items:center;justify-content:center;padding:24px}
+        .admin-block-card{max-width:720px;width:100%;background:rgba(255,255,255,.9);border-radius:20px;box-shadow:0 20px 60px rgba(234,76,137,.45);border:1px solid rgba(255,255,255,.6);padding:28px 24px;text-align:center}
+        .admin-block-title{font-weight:800;color:#9c27b0;margin-bottom:10px;font-size:1.8rem}
+        .admin-block-sub{color:#4a4a4a;margin-bottom:18px;font-weight:500}
+        .admin-block-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e83e8c,#f48fb1);color:#fff!important;border:none;border-radius:12px;padding:14px 18px;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(232,62,140,.35)}
+        .admin-block-cta:hover{filter:brightness(1.05);transform:translateY(-1px);transition:.25s}
+        .admin-block-note{font-size:.9rem;color:#6b6b6b;margin-top:10px}
+    </style>
+    <div class="admin-block-overlay" role="dialog" aria-modal="true" aria-label="Admin bloqueado">
+        <div class="admin-block-card" class="admin-block-card">
+            <div class="admin-block-title">Este painel administrativo está bloqueado</div>
+            <div class="admin-block-sub">Quer um site como este para o seu negócio? Compre este site e tenha um admin completo liberado.</div>
+            <a class="admin-block-cta" href="https://wa.me/5521972940130" target="_blank" rel="noopener">
+                <i class="bi bi-whatsapp"></i> Entre em contato: 21 97294-0130
+            </a>
+            <div class="admin-block-note">Ou ligue: <a href="tel:21972940130">21972940130</a></div>
+        </div>
+    </div>
 </body>
 </html>

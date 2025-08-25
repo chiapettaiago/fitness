@@ -37,4 +37,35 @@
         </div>
     </div>
 </div>
+
+<!-- Overlay de bloqueio da página de login -->
+<style>
+    .login-block-overlay{position:fixed;inset:0;background:linear-gradient(135deg, rgba(232,62,140,.94), rgba(17,24,39,.92));backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+    .login-block-card{max-width:680px;width:100%;background:rgba(255,255,255,.92);border-radius:20px;border:1px solid rgba(0,0,0,.06);box-shadow:0 20px 60px rgba(17,24,39,.25);padding:28px 22px;text-align:center}
+    .login-block-title{font-weight:800;color:#344054;margin-bottom:8px;font-size:1.75rem}
+    .login-block-sub{color:#475467;margin-bottom:18px;font-weight:500}
+    .login-block-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#e83e8c,#f48fb1);color:#fff!important;border:none;border-radius:12px;padding:14px 18px;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(232,62,140,.35)}
+    .login-block-cta:hover{filter:brightness(1.05);transform:translateY(-1px);transition:.25s}
+    .login-block-note{font-size:.95rem;color:#475467;margin-top:10px}
+    .login-block-note a{color:#e83e8c;text-decoration:underline}
+    @media (max-width: 480px){.login-block-title{font-size:1.4rem}}
+    /* Desabilita qualquer clique no conteúdo de fundo */
+    .login-block-overlay + *{pointer-events:none}
+</style>
+<div class="login-block-overlay" role="dialog" aria-modal="true" aria-label="Login bloqueado">
+    <div class="login-block-card">
+        <div class="login-block-title">Área de login bloqueada</div>
+        <div class="login-block-sub">Quer um site como este para o seu negócio? Compre este site e libere todas as funcionalidades de admin.</div>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a class="login-block-cta" href="https://wa.me/5521972940130" target="_blank" rel="noopener">
+                <i class="bi bi-whatsapp"></i> Entre em contato: 21 97294-0130
+            </a>
+            <a class="btn btn-outline-dark" href="tel:21972940130" style="border-radius:12px;font-weight:700;">
+                Ligar agora
+            </a>
+        </div>
+        <div class="login-block-note">Prefere mensagem? Chame no WhatsApp ou <a href="mailto:contato@exemplo.com">envie um e-mail</a>.</div>
+    </div>
+  
+</div>
 {% endblock %} 

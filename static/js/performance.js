@@ -286,14 +286,14 @@ const performanceLevel = {
         if (navigator.hardwareConcurrency) {
             // Dispositivos com menos de 4 núcleos são considerados de menor capacidade
             if (navigator.hardwareConcurrency < 4) {
-                level = Math.min(level === 'high' ? 'medium' : 'low');
+                level = (level === 'high') ? 'medium' : 'low';
             }
         }
         
         // Verifica memória disponível (API experimental, nem todos os navegadores suportam)
         if (navigator.deviceMemory) {
             if (navigator.deviceMemory < 4) {
-                level = Math.min(level === 'high' ? 'medium' : 'low');
+                level = (level === 'high') ? 'medium' : 'low';
             }
         }
         

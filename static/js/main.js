@@ -8,6 +8,15 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const productId = this.getAttribute('data-product-id');
+            if (!productId) {
+                console.warn('ID de produto ausente. Redirecionando para a página do produto.');
+                // Tenta extrair do link se disponível
+                const href = this.getAttribute('href');
+                if (href && href.includes('/product/')) {
+                    window.location.href = href;
+                }
+                return;
+            }
             openProductModal(productId);
         });
     });
@@ -39,6 +48,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Função para abrir o modal com limpeza de estado
 function openProductModal(productId) {
+    // Abre o modal imediatamente com estado de carregamento
+    const modal = document.getElementById('productModal');
+    const modalContent = document.querySelector('.product-modal-content');
+    const imgEl = document.getElementById('modalProductImage');
+    const titleEl = document.getElementById('modalProductTitle');
+    const descEl = document.getElementById('modalProductDescription');
+    const priceEl = document.getElementById('modalProductPrice');
+    const addBtn = document.getElementById('modalAddToCartBtn');
+
+    if (imgEl) imgEl.src = '';
+    if (titleEl) titleEl.textContent = 'Carregando...';
+    if (descEl) descEl.textContent = 'Buscando detalhes do produto.';
+    if (priceEl) priceEl.textContent = '';
+    if (addBtn) { addBtn.href = '#'; addBtn.setAttribute('aria-disabled', 'true'); addBtn.classList.add('disabled'); }
+
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
     // Primeiro, reseta qualquer estado de modal que possa estar pendente
     const existingModal = document.getElementById('productModal');
     const existingContent = document.querySelector('.product-modal-content');
@@ -51,8 +79,12 @@ function openProductModal(productId) {
     }
     
     // Fazer requisição AJAX para obter os detalhes do produto
-    fetch(`/api/product/${productId}`)
-        .then(response => response.json())
+    fetch(`/api/product/${productId}`, { headers: { 'Accept': 'application/json' }, cache: 'no-cache' })
+        .then(response => {
+            if (response.status === 304) return Promise.reject('304 Not Modified');
+            if (!response.ok) return Promise.reject(`Erro ${response.status}`);
+            return response.json();
+        })
         .then(product => {
             // Preencher o modal com os detalhes do produto
             document.getElementById('modalProductImage').src = product.image;
@@ -60,6 +92,8 @@ function openProductModal(productId) {
             document.getElementById('modalProductDescription').textContent = product.description;
             document.getElementById('modalProductPrice').textContent = `R$ ${product.price.toFixed(2)}`;
             document.getElementById('modalAddToCartBtn').href = `/add_to_cart/${product.id}`;
+            document.getElementById('modalAddToCartBtn').classList.remove('disabled');
+            document.getElementById('modalAddToCartBtn').removeAttribute('aria-disabled');
             
             const modal = document.getElementById('productModal');
             const modalContent = document.querySelector('.product-modal-content');
@@ -101,7 +135,13 @@ function openProductModal(productId) {
             // Adicionar classe ao body para prevenir rolagem
             document.body.style.overflow = 'hidden';
         })
-        .catch(error => console.error('Erro ao carregar detalhes do produto:', error));
+        .catch(error => {
+            // Mantém o modal aberto e informa erro amigável
+            console.error('Erro ao carregar detalhes do produto:', error);
+            if (titleEl) titleEl.textContent = 'Não foi possível carregar os detalhes';
+            if (descEl) descEl.textContent = 'Tente novamente em instantes.';
+            if (addBtn) { addBtn.classList.add('disabled'); addBtn.setAttribute('aria-disabled', 'true'); }
+        });
 }
 
 // Função para fechar o modal com limpeza adequada de estados
@@ -674,18 +714,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
             const st = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Ajusta a transparência com base na direção de rolagem
-            if (st > lastScrollTop) {
-                // Rolando para baixo - torna mais transparente
-                mobileNav.style.background = 'rgba(232, 62, 140, 0.7)';
-                mobileNav.style.backdropFilter = 'blur(8px)';
-            } else {
-                // Rolando para cima - torna mais opaco
-                mobileNav.style.background = 'rgba(232, 62, 140, 0.9)';
-                mobileNav.style.backdropFilter = 'blur(12px)';
-            }
-            lastScrollTop = st <= 0 ? 0 : st; // Para dispositivos móveis ou bouncing
+            // Mantém neutro escuro e reduz mudanças para evitar reflows caros
+            const baseOpacity = st > lastScrollTop ? 0.75 : 0.9;
+            mobileNav.style.background = `rgba(17, 24, 39, ${baseOpacity})`;
+            mobileNav.style.backdropFilter = baseOpacity < 0.8 ? 'blur(8px)' : 'blur(12px)';
+            lastScrollTop = st <= 0 ? 0 : st;
         });
         
         // Adicionando efeito de ripple nos itens do menu móvel
