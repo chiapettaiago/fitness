@@ -3,12 +3,29 @@
 {% block title %}Login - FITNESS STORE{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="login-card">
-                <h2 class="login-title">ADMIN LOGIN</h2>
-                    
+<!-- Hero Section para Login -->
+<section class="hero-banner login-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="promo-banner">
+                <i class="bi bi-shield-lock"></i>
+                <span>Área administrativa segura</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Login Form Section -->
+<section class="login-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="login-card">
+                    <div class="login-header">
+                        <h1 class="login-title">ADMIN LOGIN</h1>
+                        <p class="login-subtitle">Acesse o painel administrativo</p>
+                    </div>
+
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
@@ -20,52 +37,149 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Usuário</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                    <form method="POST" class="login-form">
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                <i class="bi bi-person"></i>
+                                Usuário
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" required placeholder="Digite seu usuário">
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-group">
+                            <label for="password" class="form-label">
+                                <i class="bi bi-lock"></i>
+                                Senha
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="Digite sua senha">
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">ENTRAR</button>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-login">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                ENTRAR
+                            </button>
                         </div>
                     </form>
+
+                    <div class="login-footer">
+                        <p>Esqueceu sua senha? <a href="#" class="login-link">Entre em contato</a></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h3>Seguro</h3>
+                    <p>Acesso protegido com criptografia</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h3>Rápido</h3>
+                    <p>Interface otimizada para performance</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                    <h3>Completo</h3>
+                    <p>Gerencie produtos, pedidos e mais</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Overlay de bloqueio da página de login -->
-<style>
-    .login-block-overlay{position:fixed;inset:0;background:linear-gradient(135deg, rgba(232,62,140,.94), rgba(17,24,39,.92));backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
-    .login-block-card{max-width:680px;width:100%;background:rgba(255,255,255,.92);border-radius:20px;border:1px solid rgba(0,0,0,.06);box-shadow:0 20px 60px rgba(17,24,39,.25);padding:28px 22px;text-align:center}
-    .login-block-title{font-weight:800;color:#344054;margin-bottom:8px;font-size:1.75rem}
-    .login-block-sub{color:#475467;margin-bottom:18px;font-weight:500}
-    .login-block-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#e83e8c,#f48fb1);color:#fff!important;border:none;border-radius:12px;padding:14px 18px;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(232,62,140,.35)}
-    .login-block-cta:hover{filter:brightness(1.05);transform:translateY(-1px);transition:.25s}
-    .login-block-note{font-size:.95rem;color:#475467;margin-top:10px}
-    .login-block-note a{color:#e83e8c;text-decoration:underline}
-    @media (max-width: 480px){.login-block-title{font-size:1.4rem}}
-    /* Desabilita qualquer clique no conteúdo de fundo */
-    .login-block-overlay + *{pointer-events:none}
-</style>
 <div class="login-block-overlay" role="dialog" aria-modal="true" aria-label="Login bloqueado">
-    <div class="login-block-card">
-        <div class="login-block-title">Área de login bloqueada</div>
-        <div class="login-block-sub">Quer um site como este para o seu negócio? Compre este site e libere todas as funcionalidades de admin.</div>
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
-            <a class="login-block-cta" href="https://wa.me/5521972940130" target="_blank" rel="noopener">
-                <i class="bi bi-whatsapp"></i> Entre em contato: 21 97294-0130
-            </a>
-            <a class="btn btn-outline-dark" href="tel:21972940130" style="border-radius:12px;font-weight:700;">
-                Ligar agora
-            </a>
+    <div class="container">
+        <div class="login-block-content">
+            <!-- Hero Section do Overlay -->
+            <section class="block-hero">
+                <div class="block-hero-content">
+                    <div class="block-promo-banner">
+                        <i class="bi bi-lock-fill"></i>
+                        <span>Área restrita - Adquira o sistema completo</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Content Section -->
+            <section class="block-main-section">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="block-card">
+                            <div class="block-header">
+                                <h1 class="block-title">Área de login bloqueada</h1>
+                                <p class="block-subtitle">Quer um site como este para o seu negócio? Compre este sistema e libere todas as funcionalidades administrativas.</p>
+                            </div>
+
+                            <div class="block-actions">
+                                <a class="btn-block-primary" href="https://wa.me/5521972940130" target="_blank" rel="noopener">
+                                    <i class="bi bi-whatsapp"></i>
+                                    Entre em contato: 21 97294-0130
+                                </a>
+                                <a class="btn-block-secondary" href="tel:21972940130">
+                                    <i class="bi bi-telephone"></i>
+                                    Ligar agora
+                                </a>
+                            </div>
+
+                            <div class="block-footer">
+                                <p>Prefere mensagem? Chame no WhatsApp ou <a href="mailto:contato@exemplo.com" class="block-link">envie um e-mail</a>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="block-features-section">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="block-feature-card">
+                            <div class="block-feature-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <h3>Sistema Completo</h3>
+                            <p>Painel administrativo com todas as funcionalidades</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="block-feature-card">
+                            <div class="block-feature-icon">
+                                <i class="bi bi-code-slash"></i>
+                            </div>
+                            <h3>Código Fonte</h3>
+                            <p>Receba o código completo para personalizar</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="block-feature-card">
+                            <div class="block-feature-icon">
+                                <i class="bi bi-headset"></i>
+                            </div>
+                            <h3>Suporte Técnico</h3>
+                            <p>Assistência para instalação e configuração</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        <div class="login-block-note">Prefere mensagem? Chame no WhatsApp ou <a href="mailto:contato@exemplo.com">envie um e-mail</a>.</div>
     </div>
-  
 </div>
-{% endblock %} 
+{% endblock %}

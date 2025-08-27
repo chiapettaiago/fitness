@@ -196,6 +196,57 @@ def logout():
     flash('Logout realizado com sucesso!', 'success')
     return redirect(url_for('index'))
 
+@app.route('/search')
+def search():
+    session.permanent = True
+    cart_count = len(session.get('cart', []))
+    featured_products = get_featured_products()
+    banners = load_banners()
+    
+    query = request.args.get('q', '').strip()
+    category = request.args.get('category')
+    
+    if not query and not category:
+        products = load_products()
+    else:
+        products = load_products()
+        
+        # Filtrar por categoria se especificada
+        if category:
+            products = [p for p in products if p.get('category') == category]
+        
+        # Filtrar por query de busca se especificada
+        if query:
+            query_lower = query.lower()
+            products = [p for p in products if 
+                       query_lower in p.get('name', '').lower() or 
+                       query_lower in p.get('description', '').lower() or
+                       query_lower in p.get('category', '').lower()]
+    
+    # ETag baseado no timestamp + query + categoria
+    etag = f'W/"search-{int(CACHE["products_timestamp"])}-{query or "none"}-{category or "all"}-{len(products)}"'
+    client_etag = request.headers.get('If-None-Match')
+    if client_etag == etag:
+        resp = make_response('', 304)
+        resp.headers['ETag'] = etag
+        resp.headers['Cache-Control'] = 'public, max-age=30'
+        resp.headers['Vary'] = 'Accept-Encoding'
+        return resp
+
+    response = make_response(render_template(
+        'index.html',
+        products=products,
+        featured_products=featured_products,
+        banners=banners,
+        cart_count=cart_count,
+        current_category=category,
+        search_query=query
+    ))
+    response.headers['ETag'] = etag
+    response.headers['Cache-Control'] = 'public, max-age=30'
+    response.headers['Vary'] = 'Accept-Encoding'
+    return response
+
 @app.route('/admin')
 @login_required
 def admin_dashboard():
@@ -361,6 +412,29 @@ def api_product_details(product_id):
         return response
     else:
         return jsonify({"error": "Produto não encontrado"}), 404
+
+# Endpoint JSON para busca via AJAX
+@app.route('/api/search')
+def api_search():
+    session.permanent = True
+    query = request.args.get('q', '').strip()
+    category = request.args.get('category')
+
+    products = load_products()
+
+    if category:
+        products = [p for p in products if p.get('category') == category]
+
+    if query:
+        q = query.lower()
+        products = [p for p in products if q in p.get('name', '').lower() or q in p.get('description', '').lower() or q in p.get('category', '').lower()]
+
+    return jsonify({
+        'count': len(products),
+        'query': query,
+        'category': category,
+        'products': products
+    })
 
 # Configurar cabeçalhos de resposta para otimização
 @app.after_request

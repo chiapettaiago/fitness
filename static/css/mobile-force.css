@@ -13,7 +13,7 @@
     }
     
     body {
-        padding-bottom: 0 !important; /* barra inferior removida */
+        padding-bottom: 0 !important; /* garantir sem espaço extra */
         padding-top: 0 !important;
         margin: 0 !important;
         overflow-x: hidden !important;

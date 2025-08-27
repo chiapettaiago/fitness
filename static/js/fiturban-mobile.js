@@ -29,30 +29,56 @@ function initMobileSidebarMenu() {
     const sidebar = document.getElementById('mobileSidebar');
     const overlay = document.getElementById('mobileSidebarOverlay');
 
+    if (!sidebar || !overlay) return;
+
+    // Garante estado inicial fechado
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.classList.remove('no-scroll');
+
+    let isOpen = false;
+
     const openMenu = () => {
-        if (!sidebar || !overlay) return;
+        if (isOpen) return;
         sidebar.classList.add('open');
         overlay.classList.add('show');
         document.body.classList.add('no-scroll');
         sidebar.setAttribute('aria-hidden', 'false');
+        isOpen = true;
+        // Foco acessível
+        const firstLink = sidebar.querySelector('a, button');
+        if (firstLink) firstLink.focus({ preventScroll: true });
     };
 
     const closeMenu = () => {
-        if (!sidebar || !overlay) return;
+        if (!isOpen) return;
         sidebar.classList.remove('open');
         overlay.classList.remove('show');
         document.body.classList.remove('no-scroll');
         sidebar.setAttribute('aria-hidden', 'true');
+        isOpen = false;
+        // Retorna foco ao botão de abertura
+        const btn = openBtns[0];
+        if (btn) btn.focus({ preventScroll: true });
     };
 
-    openBtns.forEach(btn => btn.addEventListener('click', openMenu));
-    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-    if (overlay) overlay.addEventListener('click', closeMenu);
+    openBtns.forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); openMenu(); }));
+    if (closeBtn) closeBtn.addEventListener('click', (e) => { e.preventDefault(); closeMenu(); });
+    overlay.addEventListener('click', closeMenu);
 
     // Fechar com ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeMenu();
-    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+
+    // Impedir scroll do body quando aberto
+    const toggleScroll = () => {
+        document.documentElement.style.overflow = isOpen ? 'hidden' : '';
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+        document.body.style.touchAction = isOpen ? 'none' : '';
+    };
+
+    // Observar mudanças de estado
+    const observer = new MutationObserver(() => toggleScroll());
+    observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
 }
 
 function enhanceMobileCarousels() {
