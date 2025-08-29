@@ -5,7 +5,7 @@
     "title": "Novas peças para elevar o seu treino",
     "cta_text": "Comprar agora",
     "cta_url": "/?esp=lancamentos",
-    "image": "https://images.unsplash.com/photo-1549049950-48d5887197ce?q=80&w=1600&auto=format&fit=crop"
+    "image": "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6aa1f4a8-3312-410e-b09f-3e74a81f0170.png"
   },
   {
     "id": 2,
@@ -13,7 +13,7 @@
     "title": "Básicos versáteis para todos os dias",
     "cta_text": "Ver coleção",
     "cta_url": "/?colecao=fitbasic",
-    "image": "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?q=80&w=1600&auto=format&fit=crop"
+    "image": "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f2198876-4030-40ab-9499-f106fab147bf.png"
   },
   {
     "id": 3,
@@ -21,6 +21,6 @@
     "title": "Descontos imperdíveis por tempo limitado",
     "cta_text": "Aproveitar",
     "cta_url": "/?esp=sale",
-    "image": "https://images.unsplash.com/photo-1571907480495-3f5fd9b3be26?q=80&w=1600&auto=format&fit=crop"
+    "image": "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/20bdf4e0-80b4-47d6-aad4-25737d0c90d9.png"
   }
 ]
